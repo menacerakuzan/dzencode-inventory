@@ -10,7 +10,11 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   agentRules: false,
   async rewrites() {
-    return [{ source: '/api/:path*', destination: `${apiUrl}/api/:path*` }];
+    return [
+      { source: '/api/:path*', destination: `${apiUrl}/api/:path*` },
+      // Browsers request /favicon.ico on their own; serve the SVG icon instead of a 404.
+      { source: '/favicon.ico', destination: '/favicon.svg' },
+    ];
   },
 };
 
