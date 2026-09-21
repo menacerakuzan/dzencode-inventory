@@ -41,6 +41,12 @@
     &--active {
       color: $ink-strong;
     }
+
+    &--disabled,
+    &--disabled:hover {
+      color: $muted;
+      cursor: default;
+    }
   }
 
   &__icon {
@@ -76,6 +82,11 @@
 
     &__icon {
       display: inline;
+    }
+
+    // Not enough room in the horizontal menu: only working sections are shown.
+    &__item--disabled {
+      display: none;
     }
   }
 

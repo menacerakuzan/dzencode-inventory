@@ -15,7 +15,11 @@
   "nav": {
     "label": "Main menu",
     "orders": "Orders",
-    "products": "Products"
+    "groups": "Groups",
+    "products": "Products",
+    "users": "Users",
+    "settings": "Settings",
+    "soon": "Coming soon"
   },
   "topMenu": {
     "home": "Home",
