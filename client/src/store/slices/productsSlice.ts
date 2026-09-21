@@ -3,19 +3,13 @@ import { apiErrorMessage, productsApi } from '@/lib/api';
 import type { NewProduct, Product } from '@/types';
 import { deleteOrder } from './ordersSlice';
 
-export interface ProductFilters {
-  type: string;
-  specification: string;
-}
-
 export interface ProductsState {
   items: Product[];
-  filters: ProductFilters;
+  /** Selected product type, '' — all types. */
+  typeFilter: string;
 }
 
-export const emptyFilters: ProductFilters = { type: '', specification: '' };
-
-const initialState: ProductsState = { items: [], filters: emptyFilters };
+const initialState: ProductsState = { items: [], typeFilter: '' };
 
 export const createProduct = createAsyncThunk<Product, NewProduct, { rejectValue: string }>(
   'products/create',
@@ -48,13 +42,7 @@ const productsSlice = createSlice({
       state.items = action.payload;
     },
     typeFilterChanged(state, action: PayloadAction<string>) {
-      state.filters = { type: action.payload, specification: '' };
-    },
-    specificationFilterChanged(state, action: PayloadAction<string>) {
-      state.filters.specification = action.payload;
-    },
-    filtersRestored(state, action: PayloadAction<ProductFilters>) {
-      state.filters = action.payload;
+      state.typeFilter = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -72,6 +60,5 @@ const productsSlice = createSlice({
   },
 });
 
-export const { productsHydrated, typeFilterChanged, specificationFilterChanged, filtersRestored } =
-  productsSlice.actions;
+export const { productsHydrated, typeFilterChanged } = productsSlice.actions;
 export default productsSlice.reducer;
