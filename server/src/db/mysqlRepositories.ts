@@ -1,11 +1,11 @@
-import mysql, { type Pool, type ResultSetHeader, type RowDataPacket } from 'mysql2/promise';
+import mysql, { type Pool, type PoolConnection, type ResultSetHeader, type RowDataPacket } from 'mysql2/promise';
 import type {
   Currency,
-  NewOrder,
-  NewProduct,
   Order,
+  OrderInput,
   Price,
   Product,
+  ProductInput,
   ProductStatus,
   Repositories,
   User,
@@ -43,17 +43,6 @@ export async function waitForDatabase(pool: Pool, attempts = 30, delayMs = 2000)
     }
   }
 }
-
-const PHOTO_BY_TYPE: Record<string, string> = {
-  monitors: '/products/monitors.svg',
-  laptops: '/products/laptops.svg',
-  keyboards: '/products/keyboards.svg',
-  motherboards: '/products/motherboards.svg',
-  phones: '/products/phones.svg',
-};
-
-export const photoForType = (type: string): string =>
-  PHOTO_BY_TYPE[type.trim().toLowerCase()] ?? '/products/default.svg';
 
 interface OrderRow extends RowDataPacket {
   id: number;
@@ -153,6 +142,48 @@ export function createMysqlRepositories(pool: Pool): Repositories {
     return rows.map((row) => toProduct(row, prices.get(row.id) ?? []));
   }
 
+  async function findOrder(id: number): Promise<Order | null> {
+    const [rows] = await pool.query<OrderRow[]>('SELECT * FROM orders WHERE id = ?', [id]);
+    return rows[0] ? toOrder(rows[0]) : null;
+  }
+
+  async function inTransaction<T>(work: (connection: PoolConnection) => Promise<T>): Promise<T> {
+    const connection = await pool.getConnection();
+    try {
+      await connection.beginTransaction();
+      const result = await work(connection);
+      await connection.commit();
+      return result;
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  }
+
+  const productColumns = (product: ProductInput) => [
+    product.serialNumber,
+    product.isNew ? 1 : 0,
+    product.photo,
+    product.title,
+    product.type,
+    product.specification,
+    product.status,
+    product.guarantee.start,
+    product.guarantee.end,
+    product.order,
+  ];
+
+  async function savePrices(connection: PoolConnection, productId: number, product: ProductInput) {
+    for (const price of product.price) {
+      await connection.execute(
+        'INSERT INTO product_prices (product_id, value, symbol, is_default) VALUES (?, ?, ?, ?)',
+        [productId, price.value, price.symbol, price.isDefault ? 1 : 0],
+      );
+    }
+  }
+
   return {
     users: {
       async findByEmail(email): Promise<UserWithPassword | null> {
@@ -184,13 +215,19 @@ export function createMysqlRepositories(pool: Pool): Repositories {
         const [rows] = await pool.query<RowDataPacket[]>('SELECT 1 FROM orders WHERE id = ? LIMIT 1', [id]);
         return rows.length > 0;
       },
-      async create(order: NewOrder) {
+      async create(order: OrderInput) {
         const [result] = await pool.execute<ResultSetHeader>(
           'INSERT INTO orders (title, description, date, warehouse_id) VALUES (?, ?, ?, ?)',
           [order.title, order.description, order.date, order.warehouseId],
         );
-        const [rows] = await pool.query<OrderRow[]>('SELECT * FROM orders WHERE id = ?', [result.insertId]);
-        return toOrder(rows[0]!);
+        return (await findOrder(result.insertId))!;
+      },
+      async update(id, order: OrderInput) {
+        await pool.execute(
+          'UPDATE orders SET title = ?, description = ?, date = ?, warehouse_id = ? WHERE id = ?',
+          [order.title, order.description, order.date, order.warehouseId, id],
+        );
+        return findOrder(id);
       },
       async remove(id) {
         const [result] = await pool.execute<ResultSetHeader>('DELETE FROM orders WHERE id = ?', [id]);
@@ -200,44 +237,35 @@ export function createMysqlRepositories(pool: Pool): Repositories {
 
     products: {
       list: (filter) => listProducts(filter),
-      async create(product: NewProduct) {
-        const connection = await pool.getConnection();
-        try {
-          await connection.beginTransaction();
+      create: (product) =>
+        inTransaction(async (connection) => {
           const [result] = await connection.execute<ResultSetHeader>(
             `INSERT INTO products
               (serial_number, is_new, photo, title, type, specification, status, guarantee_start, guarantee_end, order_id, date)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [
-              product.serialNumber,
-              product.isNew ? 1 : 0,
-              photoForType(product.type),
-              product.title,
-              product.type,
-              product.specification,
-              product.status,
-              product.guarantee.start,
-              product.guarantee.end,
-              product.order,
-              nowAsSqlDateTime(),
-            ],
+            [...productColumns(product), nowAsSqlDateTime()],
           );
-          for (const price of product.price) {
-            await connection.execute(
-              'INSERT INTO product_prices (product_id, value, symbol, is_default) VALUES (?, ?, ?, ?)',
-              [result.insertId, price.value, price.symbol, price.isDefault ? 1 : 0],
-            );
-          }
-          await connection.commit();
-          const [created] = await listProducts({ id: result.insertId });
-          return created!;
-        } catch (error) {
-          await connection.rollback();
-          throw error;
-        } finally {
-          connection.release();
-        }
-      },
+          await savePrices(connection, result.insertId, product);
+          return result.insertId;
+        }).then(async (id) => (await listProducts({ id }))[0]!),
+      update: (id, product) =>
+        inTransaction(async (connection) => {
+          const [existing] = await connection.query<RowDataPacket[]>(
+            'SELECT id FROM products WHERE id = ? FOR UPDATE',
+            [id],
+          );
+          if (existing.length === 0) return false;
+          await connection.execute(
+            `UPDATE products SET
+               serial_number = ?, is_new = ?, photo = ?, title = ?, type = ?, specification = ?, status = ?,
+               guarantee_start = ?, guarantee_end = ?, order_id = ?
+             WHERE id = ?`,
+            [...productColumns(product), id],
+          );
+          await connection.execute('DELETE FROM product_prices WHERE product_id = ?', [id]);
+          await savePrices(connection, id, product);
+          return true;
+        }).then(async (found) => (found ? (await listProducts({ id }))[0]! : null)),
       async remove(id) {
         const [result] = await pool.execute<ResultSetHeader>('DELETE FROM products WHERE id = ?', [id]);
         return result.affectedRows > 0;

@@ -103,6 +103,21 @@ describe('orders', () => {
     expect(res.body).toMatchObject({ title: 'New order', description: '', date: '2026-09-21 10:30:00' });
   });
 
+  it('updates an order and returns 404 for unknown ids', async () => {
+    const res = await request(ctx.app)
+      .put('/api/orders/1')
+      .set('Cookie', cookie)
+      .send({ title: 'Renamed order', date: '2026-09-21 10:30', warehouseId: null });
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({ id: 1, title: 'Renamed order', warehouseId: null });
+
+    const missing = await request(ctx.app)
+      .put('/api/orders/999')
+      .set('Cookie', cookie)
+      .send({ title: 'Renamed order', date: '2026-09-21 10:30' });
+    expect(missing.status).toBe(404);
+  });
+
   it('deletes an order and returns 404 for unknown ids', async () => {
     const del = await request(ctx.app).delete('/api/orders/1').set('Cookie', cookie);
     expect(del.status).toBe(204);
@@ -146,10 +161,43 @@ describe('products', () => {
     expect(res.body).toEqual([]);
   });
 
-  it('creates a product', async () => {
+  it('creates a product with the default photo when none is chosen', async () => {
     const res = await request(ctx.app).post('/api/products').set('Cookie', cookie).send(validProduct);
     expect(res.status).toBe(201);
     expect(res.body.guarantee).toEqual({ start: '2026-01-01 00:00:00', end: '2027-01-01 00:00:00' });
+    expect(res.body.photo).toBe('/icons/default.svg');
+  });
+
+  it('updates a product including its photo and prices', async () => {
+    const res = await request(ctx.app)
+      .put('/api/products/1')
+      .set('Cookie', cookie)
+      .send({
+        ...validProduct,
+        title: 'Edited',
+        photo: '/uploads/abc.png',
+        price: [{ value: 5000, symbol: 'uah', isDefault: true }],
+      });
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({
+      id: 1,
+      title: 'Edited',
+      photo: '/uploads/abc.png',
+      price: [{ value: 5000, symbol: 'UAH', isDefault: true }],
+    });
+  });
+
+  it('rejects unknown currencies and foreign photo paths', async () => {
+    const res = await request(ctx.app)
+      .post('/api/products')
+      .set('Cookie', cookie)
+      .send({
+        ...validProduct,
+        photo: 'https://evil.example/x.png',
+        price: [{ value: 1, symbol: 'EUR', isDefault: true }],
+      });
+    expect(res.status).toBe(400);
+    expect(res.body.errors.map((e: { path: string }) => e.path)).toEqual(['photo', 'price.0.symbol']);
   });
 
   it('rejects guarantee end before start', async () => {
@@ -181,6 +229,49 @@ describe('products', () => {
     const res = await request(ctx.app).delete('/api/products/1').set('Cookie', cookie);
     expect(res.status).toBe(204);
     expect(ctx.repos.data.products).toHaveLength(0);
+  });
+});
+
+describe('settings, icons and uploads', () => {
+  let ctx: ReturnType<typeof setup>;
+  let cookie: string;
+  beforeEach(async () => {
+    ctx = setup();
+    cookie = await login(ctx.app);
+  });
+
+  it('returns configured currencies', async () => {
+    const res = await request(ctx.app).get('/api/settings').set('Cookie', cookie);
+    expect(res.body).toEqual({ currencies: ['UAH', 'USD'], defaultCurrency: 'UAH' });
+  });
+
+  it('lists icons from the icons folder and serves them', async () => {
+    const res = await request(ctx.app).get('/api/icons').set('Cookie', cookie);
+    expect(res.body).toContainEqual({ name: 'monitors', url: '/icons/monitors.svg' });
+    expect((await request(ctx.app).get('/icons/monitors.svg')).status).toBe(200);
+  });
+
+  it('uploads an image and serves it back', async () => {
+    const png = Buffer.from(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
+      'base64',
+    );
+    const res = await request(ctx.app)
+      .post('/api/uploads')
+      .set('Cookie', cookie)
+      .attach('file', png, { filename: 'pixel.png', contentType: 'image/png' });
+    expect(res.status).toBe(201);
+    expect(res.body.url).toMatch(/^\/uploads\/[\w-]+\.png$/);
+    expect((await request(ctx.app).get(res.body.url)).status).toBe(200);
+  });
+
+  it('rejects non-image uploads and requires auth', async () => {
+    const svg = await request(ctx.app)
+      .post('/api/uploads')
+      .set('Cookie', cookie)
+      .attach('file', Buffer.from('<svg/>'), { filename: 'x.svg', contentType: 'image/svg+xml' });
+    expect(svg.status).toBe(400);
+    expect((await request(ctx.app).post('/api/uploads')).status).toBe(401);
   });
 });
 
