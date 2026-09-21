@@ -1,0 +1,153 @@
+{
+  "meta": {
+    "title": "Inventory — orders and products",
+    "description": "SPA for tracking warehouse orders and products"
+  },
+  "common": {
+    "close": "Close",
+    "loading": "Loading…",
+    "retry": "Retry",
+    "save": "Save",
+    "cancel": "Cancel",
+    "notSelected": "Not selected"
+  },
+  "nav": {
+    "label": "Main menu",
+    "orders": "Orders",
+    "products": "Products",
+    "stats": "Statistics"
+  },
+  "topMenu": {
+    "home": "Home",
+    "search": "Search",
+    "searchLabel": "Search by title or serial number",
+    "sessions": "{count, plural, one {# active tab} other {# active tabs}} of the app",
+    "offline": "No connection to the server",
+    "language": "Interface language"
+  },
+  "profile": {
+    "menu": "Profile menu",
+    "logout": "Sign out"
+  },
+  "orders": {
+    "title": "Orders",
+    "add": "Add order",
+    "productsCount": "{count, plural, one {Product} other {Products}}",
+    "open": "Open order “{title}”",
+    "delete": "Delete order",
+    "addProduct": "Add product",
+    "empty": "No orders yet — add the first one",
+    "emptyProducts": "This order has no products yet",
+    "noMatches": "Nothing found for “{query}”",
+    "warehouse": "Warehouse",
+    "details": "Order details"
+  },
+  "products": {
+    "title": "Products",
+    "add": "Add product",
+    "type": "Type",
+    "specification": "Specification",
+    "all": "All",
+    "reset": "Reset filters",
+    "from": "from",
+    "to": "to",
+    "empty": "No products match the selected filters",
+    "delete": "Delete product",
+    "order": "Order",
+    "guarantee": "Guarantee",
+    "price": "Price",
+    "date": "Date",
+    "status": {
+      "free": "Available",
+      "repair": "In repair"
+    },
+    "condition": {
+      "new": "New",
+      "used": "Used"
+    },
+    "types": {
+      "Monitors": "Monitors",
+      "Laptops": "Laptops",
+      "Keyboards": "Keyboards",
+      "Motherboards": "Motherboards",
+      "Phones": "Phones"
+    }
+  },
+  "deleteModal": {
+    "order": "Are you sure you want to delete this order?",
+    "product": "Are you sure you want to delete this product?",
+    "orderProducts": "{count, plural, one {# product} other {# products}} will be deleted together with the order",
+    "cancel": "Cancel",
+    "confirm": "Delete"
+  },
+  "orderForm": {
+    "title": "New order",
+    "name": "Order title",
+    "namePlaceholder": "e.g. Dell monitors delivery",
+    "date": "Order date",
+    "warehouse": "Warehouse",
+    "description": "Description",
+    "submit": "Create order"
+  },
+  "productForm": {
+    "title": "New product",
+    "order": "Order",
+    "name": "Title",
+    "serialNumber": "Serial number",
+    "type": "Type",
+    "specification": "Specification",
+    "status": "Status",
+    "condition": "Condition",
+    "guaranteeStart": "Guarantee from",
+    "guaranteeEnd": "Guarantee until",
+    "priceUsd": "Price, USD",
+    "priceUah": "Price, UAH (default)",
+    "submit": "Add product"
+  },
+  "validation": {
+    "required": "This field is required",
+    "minLength": "The value is too short",
+    "maxLength": "The value is too long",
+    "email": "Enter a valid email",
+    "password": "Password must contain at least 6 characters",
+    "date": "Enter a valid date",
+    "positive": "Enter a number greater than zero",
+    "guaranteeOrder": "Guarantee end can't be earlier than its start",
+    "order": "Select an order"
+  },
+  "login": {
+    "title": "Sign in to Inventory",
+    "subtitle": "Orders and products tracking",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign in",
+    "demo": "Demo access",
+    "fillDemo": "Fill in",
+    "invalid": "Invalid email or password"
+  },
+  "stats": {
+    "title": "Statistics",
+    "orders": "Orders",
+    "products": "Products",
+    "totalUah": "Total, UAH",
+    "inRepair": "In repair",
+    "byType": "Products by type",
+    "byOrder": "Order totals, UAH",
+    "map": "Warehouses on the map",
+    "mapOrders": "{count, plural, one {# order} other {# orders}}",
+    "noData": "No data to display"
+  },
+  "toast": {
+    "orderCreated": "Order “{title}” created",
+    "orderDeleted": "Order deleted",
+    "productCreated": "Product “{title}” added",
+    "productDeleted": "Product deleted",
+    "error": "Action failed: {message}"
+  },
+  "errors": {
+    "title": "Something went wrong",
+    "description": "Failed to load data. Make sure the API server is running.",
+    "notFoundTitle": "Page not found",
+    "notFoundLink": "Back to orders"
+  }
+}
