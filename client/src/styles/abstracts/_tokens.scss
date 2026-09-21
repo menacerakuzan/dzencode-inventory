@@ -1,0 +1,53 @@
+// Design tokens taken from the mockups
+$green: #8bc34a;
+$green-dark: #6ea832;
+$green-deep: #5a9a24;
+$lime: #c0ca33;
+$red: #e53935;
+$ink: #37474f;
+$ink-strong: #263238;
+$muted: #90a4ae;
+$muted-dark: #78909c;
+$border: #dfe4e8;
+$bg: #f0f3f5;
+$surface: #ffffff;
+
+$radius: 4px;
+$header-height: 72px;
+$sidebar-width: 200px;
+
+$shadow-sm: 0 2px 8px rgba(38, 50, 56, 0.06);
+$shadow-md: 0 10px 28px rgba(38, 50, 56, 0.12);
+$shadow-lg: 0 18px 48px rgba(38, 50, 56, 0.22);
+
+$bp-sm: 576px;
+$bp-md: 768px;
+$bp-lg: 992px;
+$bp-xl: 1200px;
+
+@mixin down($breakpoint) {
+  @media (max-width: ($breakpoint - 0.02px)) {
+    @content;
+  }
+}
+
+@mixin underline-link {
+  color: $ink;
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 100% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  opacity: 0.85;
+  transition: color 0.2s, opacity 0.2s;
+
+  &:hover {
+    color: $green-dark;
+    opacity: 1;
+  }
+}
+
+@mixin focus-ring {
+  outline: 2px solid rgba($green, 0.7);
+  outline-offset: 2px;
+}
