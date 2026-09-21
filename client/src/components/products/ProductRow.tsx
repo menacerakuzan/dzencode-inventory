@@ -3,11 +3,11 @@
 import { motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import DateStack from '@/components/ui/DateStack';
 import PriceStack from '@/components/ui/PriceStack';
 import { cn } from '@/lib/cn';
-import { formatNumericDate } from '@/lib/format';
+import { formatNumericDate, formatShortTextDate } from '@/lib/format';
 import { useAppDispatch } from '@/store/hooks';
 import { deleteRequested } from '@/store/slices/uiSlice';
 import type { Product } from '@/types';
@@ -20,6 +20,7 @@ interface Props {
 
 export default function ProductRow({ product, orderTitle, index }: Props) {
   const t = useTranslations('products');
+  const locale = useLocale();
   const dispatch = useAppDispatch();
   const typeLabel = t.has(`types.${product.type}`) ? t(`types.${product.type}`) : product.type;
 
@@ -51,12 +52,13 @@ export default function ProductRow({ product, orderTitle, index }: Props) {
         <span className="product-row__condition">{t(product.isNew ? 'condition.new' : 'condition.used')}</span>
       </span>
       <span className="product-row__guarantee">
-        <span className="product-row__guarantee-line">
-          <span className="product-row__muted">{t('from')}</span> {formatNumericDate(product.guarantee.start)}
-        </span>
-        <span className="product-row__guarantee-line">
-          <span className="product-row__muted">{t('to')}</span> {formatNumericDate(product.guarantee.end)}
-        </span>
+        {(['start', 'end'] as const).map((edge) => (
+          <span key={edge} className="product-row__guarantee-line">
+            <span className="product-row__muted">{t(edge === 'start' ? 'from' : 'to')}</span>{' '}
+            {formatNumericDate(product.guarantee[edge])}{' '}
+            <span className="product-row__muted">{formatShortTextDate(product.guarantee[edge], locale)}</span>
+          </span>
+        ))}
       </span>
       <PriceStack className="product-row__price" prices={product.price} />
       <span className="product-row__type">

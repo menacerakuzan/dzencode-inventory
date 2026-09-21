@@ -1,30 +1,17 @@
-import type { ProductFilters } from '@/store/slices/productsSlice';
+const TYPE_FILTER_KEY = 'inventory:product-type';
 
-const FILTERS_KEY = 'inventory:product-filters';
-
-export function readStoredFilters(): ProductFilters | null {
+export function readStoredTypeFilter(): string | null {
   try {
-    const raw = window.localStorage.getItem(FILTERS_KEY);
-    if (!raw) return null;
-    const parsed: unknown = JSON.parse(raw);
-    if (
-      parsed &&
-      typeof parsed === 'object' &&
-      typeof (parsed as ProductFilters).type === 'string' &&
-      typeof (parsed as ProductFilters).specification === 'string'
-    ) {
-      return parsed as ProductFilters;
-    }
-    return null;
+    return window.localStorage.getItem(TYPE_FILTER_KEY);
   } catch {
     return null;
   }
 }
 
-export function writeStoredFilters(filters: ProductFilters): void {
+export function writeStoredTypeFilter(type: string): void {
   try {
-    window.localStorage.setItem(FILTERS_KEY, JSON.stringify(filters));
+    window.localStorage.setItem(TYPE_FILTER_KEY, type);
   } catch {
-    // Storage can be unavailable (private mode, quota) — filters just won't persist.
+    // Storage can be unavailable (private mode, quota) — the filter just won't persist.
   }
 }

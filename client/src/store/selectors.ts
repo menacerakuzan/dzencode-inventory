@@ -6,7 +6,7 @@ import type { RootState } from './store';
 export const selectOrders = (state: RootState) => state.orders.items;
 export const selectSelectedOrderId = (state: RootState) => state.orders.selectedId;
 export const selectProducts = (state: RootState) => state.products.items;
-export const selectProductFilters = (state: RootState) => state.products.filters;
+export const selectTypeFilter = (state: RootState) => state.products.typeFilter;
 export const selectSearch = (state: RootState) => state.ui.search;
 export const selectWarehouses = (state: RootState) => state.session.warehouses;
 
@@ -50,18 +50,13 @@ export const selectProductTypes = createSelector([selectProducts], (products) =>
   [...new Set(products.map((p) => p.type))].sort(),
 );
 
-export const selectSpecifications = createSelector([selectProducts, selectProductFilters], (products, filters) =>
-  [...new Set(products.filter((p) => !filters.type || p.type === filters.type).map((p) => p.specification))].sort(),
-);
-
 export const selectFilteredProducts = createSelector(
-  [selectProducts, selectProductFilters, selectSearch],
-  (products, filters, search) => {
+  [selectProducts, selectTypeFilter, selectSearch],
+  (products, type, search) => {
     const query = normalize(search);
     return products.filter(
       (p) =>
-        (!filters.type || p.type === filters.type) &&
-        (!filters.specification || p.specification === filters.specification) &&
+        (!type || p.type === type) &&
         (!query || normalize(p.title).includes(query) || normalize(p.serialNumber).includes(query)),
     );
   },
