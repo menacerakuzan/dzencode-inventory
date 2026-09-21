@@ -1,0 +1,36 @@
+@use '../abstracts/tokens' as *;
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+
+  &__body {
+    display: flex;
+    flex: 1;
+
+    @include down($bp-lg) {
+      flex-direction: column;
+    }
+  }
+
+  &__main {
+    flex: 1;
+    min-width: 0;
+    padding: 56px clamp(16px, 4vw, 64px) 72px clamp(16px, 7vw, 124px);
+
+    @include down($bp-lg) {
+      padding: 28px 16px 56px;
+    }
+  }
+}
+
+.page-transition {
+  min-height: 100%;
+}
+
+.page-loading {
+  display: grid;
+  place-items: center;
+  min-height: 320px;
+}

@@ -1,0 +1,11 @@
+// BEM architecture: one partial per block in `blocks/`, shared tokens in `abstracts/`.
+@use 'base/base';
+@use 'blocks/app';
+@use 'blocks/top-menu';
+@use 'blocks/nav-menu';
+@use 'blocks/ui';
+@use 'blocks/orders';
+@use 'blocks/products';
+@use 'blocks/dialog';
+@use 'blocks/stats';
+@use 'blocks/login';
