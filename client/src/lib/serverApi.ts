@@ -1,9 +1,9 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import type { Order, Product, User, Warehouse } from '@/types';
+import type { Order, Product, Settings, User, Warehouse } from '@/types';
+import { AUTH_COOKIE } from './config';
 
 const API_URL = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
-export const AUTH_COOKIE = 'token';
 
 /** Server-side (SSR) fetch that forwards the user's JWT cookie to the API. */
 async function serverGet<T>(path: string): Promise<T> {
@@ -21,3 +21,4 @@ export const getCurrentUser = () => serverGet<{ user: User }>('/auth/me').then((
 export const getOrders = () => serverGet<Order[]>('/orders');
 export const getProducts = () => serverGet<Product[]>('/products');
 export const getWarehouses = () => serverGet<Warehouse[]>('/warehouses');
+export const getSettings = () => serverGet<Settings>('/settings');

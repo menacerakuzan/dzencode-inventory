@@ -2,19 +2,22 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 export type DeleteTarget = { kind: 'order' | 'product'; id: number };
 
+/** `id: null` — create a new entity, a number — edit the existing one. */
+export type OrderForm = { id: number | null };
+export type ProductForm = { id: number | null; orderId: number | null };
+
 export interface UiState {
   search: string;
   deleteTarget: DeleteTarget | null;
-  orderFormOpen: boolean;
-  /** `null` — closed, `0` — opened without a preselected order. */
-  productFormOrderId: number | null;
+  orderForm: OrderForm | null;
+  productForm: ProductForm | null;
 }
 
 const initialState: UiState = {
   search: '',
   deleteTarget: null,
-  orderFormOpen: false,
-  productFormOrderId: null,
+  orderForm: null,
+  productForm: null,
 };
 
 const uiSlice = createSlice({
@@ -30,14 +33,17 @@ const uiSlice = createSlice({
     deleteDismissed(state) {
       state.deleteTarget = null;
     },
-    orderFormToggled(state, action: PayloadAction<boolean>) {
-      state.orderFormOpen = action.payload;
+    orderFormOpened(state, action: PayloadAction<OrderForm>) {
+      state.orderForm = action.payload;
     },
-    productFormOpened(state, action: PayloadAction<number | undefined>) {
-      state.productFormOrderId = action.payload ?? 0;
+    orderFormClosed(state) {
+      state.orderForm = null;
+    },
+    productFormOpened(state, action: PayloadAction<ProductForm>) {
+      state.productForm = action.payload;
     },
     productFormClosed(state) {
-      state.productFormOrderId = null;
+      state.productForm = null;
     },
   },
 });
@@ -46,7 +52,8 @@ export const {
   searchChanged,
   deleteRequested,
   deleteDismissed,
-  orderFormToggled,
+  orderFormOpened,
+  orderFormClosed,
   productFormOpened,
   productFormClosed,
 } = uiSlice.actions;

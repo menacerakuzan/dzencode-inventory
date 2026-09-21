@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { apiErrorMessage, ordersApi } from '@/lib/api';
-import type { NewOrder, Order } from '@/types';
+import type { Order, OrderInput } from '@/types';
 
 export interface OrdersState {
   items: Order[];
@@ -11,11 +11,22 @@ const initialState: OrdersState = { items: [], selectedId: null };
 
 const byDateDesc = (a: Order, b: Order) => b.date.localeCompare(a.date) || b.id - a.id;
 
-export const createOrder = createAsyncThunk<Order, NewOrder, { rejectValue: string }>(
+export const createOrder = createAsyncThunk<Order, OrderInput, { rejectValue: string }>(
   'orders/create',
   async (order, { rejectWithValue }) => {
     try {
       return await ordersApi.create(order);
+    } catch (error) {
+      return rejectWithValue(apiErrorMessage(error));
+    }
+  },
+);
+
+export const updateOrder = createAsyncThunk<Order, { id: number; order: OrderInput }, { rejectValue: string }>(
+  'orders/update',
+  async ({ id, order }, { rejectWithValue }) => {
+    try {
+      return await ordersApi.update(id, order);
     } catch (error) {
       return rejectWithValue(apiErrorMessage(error));
     }
@@ -52,6 +63,10 @@ const ordersSlice = createSlice({
     builder
       .addCase(createOrder.fulfilled, (state, action) => {
         state.items.push(action.payload);
+        state.items.sort(byDateDesc);
+      })
+      .addCase(updateOrder.fulfilled, (state, action) => {
+        state.items = state.items.map((item) => (item.id === action.payload.id ? action.payload : item));
         state.items.sort(byDateDesc);
       })
       .addCase(deleteOrder.fulfilled, (state, action) => {

@@ -12,6 +12,7 @@ import {
   parseDateTime,
   splitPrices,
   sumTotals,
+  totalsToPrices,
   toDateTimeLocal,
 } from './format';
 
@@ -47,7 +48,7 @@ describe('money', () => {
     expect(formatAmount(250000.5)).toBe(`250${NBSP}000.50`);
     expect(formatAmount(2500)).toBe(`2${NBSP}500`);
     expect(formatMoney(50.25, 'UAH')).toBe(`50.25${NBSP}UAH`);
-    expect(formatMoney(100, 'USD')).toBe(`100${NBSP}$`);
+    expect(formatMoney(100, 'EUR')).toBe(`100${NBSP}EUR`);
   });
 
   it('sums product prices per currency without float noise', () => {
@@ -56,12 +57,20 @@ describe('money', () => {
       makeProduct({ price: [{ value: 0.2, symbol: 'USD', isDefault: false }, { value: 0.1, symbol: 'UAH', isDefault: true }] }),
     ];
     expect(sumTotals(products)).toEqual({ USD: 0.3, UAH: 0.3 });
-    expect(sumTotals([])).toEqual({ USD: 0, UAH: 0 });
+    expect(sumTotals([])).toEqual({});
   });
 
-  it('puts the default currency first as the main price', () => {
+  it('puts the default currency as the main price', () => {
     const { main, secondary } = splitPrices(makeProduct().price);
     expect(main?.symbol).toBe('UAH');
-    expect(secondary?.symbol).toBe('USD');
+    expect(secondary.map((p) => p.symbol)).toEqual(['USD']);
+  });
+
+  it('turns totals into prices for every configured currency', () => {
+    expect(totalsToPrices({ UAH: 100 }, ['UAH', 'USD', 'EUR'], 'USD')).toEqual([
+      { value: 100, symbol: 'UAH', isDefault: false },
+      { value: 0, symbol: 'USD', isDefault: true },
+      { value: 0, symbol: 'EUR', isDefault: false },
+    ]);
   });
 });

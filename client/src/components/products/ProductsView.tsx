@@ -23,10 +23,7 @@ export default function ProductsView() {
   const orderTitles = useAppSelector(selectOrderTitles);
   const typeCounts = useAppSelector(selectTypeCounts);
 
-  const chartData = typeCounts.map(({ type, count }) => ({
-    label: t.has(`types.${type}`) ? t(`types.${type}`) : type,
-    value: count,
-  }));
+  const chartData = typeCounts.map(({ type, count }) => ({ label: type, value: count }));
 
   return (
     <section className="products">
@@ -34,7 +31,7 @@ export default function ProductsView() {
         title={t('title')}
         count={products.length}
         addLabel={t('add')}
-        onAdd={() => dispatch(productFormOpened(undefined))}
+        onAdd={() => dispatch(productFormOpened({ id: null, orderId: null }))}
       >
         <ProductsFilter />
       </PageHeader>

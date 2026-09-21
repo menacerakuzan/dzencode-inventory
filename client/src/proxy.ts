@@ -1,6 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-
-const AUTH_COOKIE = 'token';
+import { AUTH_COOKIE } from '@/lib/config';
 
 /** Fast redirect to /login when there is no token at all; the API still verifies the JWT itself. */
 export function proxy(request: NextRequest) {

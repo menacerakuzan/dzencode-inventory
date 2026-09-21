@@ -1,13 +1,13 @@
 import type { ReactNode } from 'react';
 import AppShell from '@/components/layout/AppShell';
-import { getCurrentUser } from '@/lib/serverApi';
+import { getCurrentUser, getSettings } from '@/lib/serverApi';
 import StoreProvider from '@/store/StoreProvider';
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
-  const user = await getCurrentUser();
+  const [user, settings] = await Promise.all([getCurrentUser(), getSettings()]);
 
   return (
-    <StoreProvider user={user}>
+    <StoreProvider user={user} settings={settings}>
       <AppShell>{children}</AppShell>
     </StoreProvider>
   );

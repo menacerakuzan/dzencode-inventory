@@ -85,6 +85,11 @@
     background: rgba($red, 0.08);
     color: $red;
   }
+
+  &--edit:hover {
+    background: rgba($green, 0.12);
+    color: $green-dark;
+  }
 }
 
 .add-link {
@@ -182,6 +187,14 @@
     font-size: 0.68rem;
     text-transform: uppercase;
   }
+}
+
+.photo-placeholder {
+  display: grid;
+  place-items: center;
+  border-radius: $radius;
+  background: #eef2f4;
+  color: $muted;
 }
 
 .empty-state {

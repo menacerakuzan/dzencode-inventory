@@ -9,7 +9,7 @@ import PriceStack from '@/components/ui/PriceStack';
 import { cn } from '@/lib/cn';
 import { formatNumericDate, formatShortTextDate } from '@/lib/format';
 import { useAppDispatch } from '@/store/hooks';
-import { deleteRequested } from '@/store/slices/uiSlice';
+import { deleteRequested, productFormOpened } from '@/store/slices/uiSlice';
 import type { Product } from '@/types';
 
 interface Props {
@@ -22,7 +22,6 @@ export default function ProductRow({ product, orderTitle, index }: Props) {
   const t = useTranslations('products');
   const locale = useLocale();
   const dispatch = useAppDispatch();
-  const typeLabel = t.has(`types.${product.type}`) ? t(`types.${product.type}`) : product.type;
 
   return (
     <motion.li
@@ -33,14 +32,13 @@ export default function ProductRow({ product, orderTitle, index }: Props) {
       exit={{ opacity: 0, x: -32, transition: { duration: 0.2 } }}
     >
       <span className={cn('status-dot', `status-dot--${product.status}`)} aria-hidden />
-      <Image
-        className="product-row__photo"
-        src={product.photo ?? '/products/default.svg'}
-        alt=""
-        width={48}
-        height={36}
-        unoptimized
-      />
+      {product.photo ? (
+        <Image className="product-row__photo" src={product.photo} alt="" width={48} height={36} unoptimized />
+      ) : (
+        <span className="product-row__photo photo-placeholder" aria-hidden>
+          <i className="bi bi-image" />
+        </span>
+      )}
       <div className="product-row__info">
         <span className="product-row__title" title={product.title}>{product.title}</span>
         <span className="product-row__serial">{product.serialNumber}</span>
@@ -62,7 +60,7 @@ export default function ProductRow({ product, orderTitle, index }: Props) {
       </span>
       <PriceStack className="product-row__price" prices={product.price} />
       <span className="product-row__type">
-        <span className="product-row__type-name">{typeLabel}</span>
+        <span className="product-row__type-name">{product.type}</span>
         <span className="product-row__spec" title={product.specification}>{product.specification}</span>
       </span>
       <span className="product-row__order">
@@ -75,14 +73,26 @@ export default function ProductRow({ product, orderTitle, index }: Props) {
         )}
       </span>
       <DateStack className="product-row__date" date={product.date} />
-      <button
-        type="button"
-        className="icon-button product-row__delete"
-        onClick={() => dispatch(deleteRequested({ kind: 'product', id: product.id }))}
-        aria-label={t('delete')}
-      >
-        <i className="bi bi-trash3-fill" aria-hidden />
-      </button>
+      <span className="product-row__actions">
+        <button
+          type="button"
+          className="icon-button icon-button--edit"
+          onClick={() => dispatch(productFormOpened({ id: product.id, orderId: product.order }))}
+          aria-label={t('edit')}
+          title={t('edit')}
+        >
+          <i className="bi bi-pencil-fill" aria-hidden />
+        </button>
+        <button
+          type="button"
+          className="icon-button"
+          onClick={() => dispatch(deleteRequested({ kind: 'product', id: product.id }))}
+          aria-label={t('delete')}
+          title={t('delete')}
+        >
+          <i className="bi bi-trash3-fill" aria-hidden />
+        </button>
+      </span>
     </motion.li>
   );
 }

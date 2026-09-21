@@ -21,36 +21,36 @@ INSERT INTO `orders` (`id`, `title`, `description`, `date`, `warehouse_id`) VALU
 
 INSERT INTO `products`
   (`id`, `serial_number`, `is_new`, `photo`, `title`, `type`, `specification`, `status`, `guarantee_start`, `guarantee_end`, `order_id`, `date`) VALUES
-  (1,  'SN-26.0204101', 1, '/products/monitors.svg',     'Samsung Odyssey G5 27" (LS27CG552)', 'Monitors', '27" QHD, 165 Hz, VA', 'free',   '2026-02-04 10:15:00', '2028-02-04 10:15:00', 1, '2026-02-04 10:15:00'),
-  (2,  'SN-26.0204102', 0, '/products/monitors.svg',     'Samsung Odyssey G5 27" (LS27CG552)', 'Monitors', '27" QHD, 165 Hz, VA', 'repair', '2026-02-04 10:15:00', '2028-02-04 10:15:00', 1, '2026-02-04 10:15:00'),
-  (3,  'SN-26.0204103', 1, '/products/monitors.svg',     'Dell UltraSharp U2723QE',            'Monitors', '27" 4K UHD, IPS Black, USB-C', 'free', '2026-02-04 10:15:00', '2029-02-04 10:15:00', 1, '2026-02-04 10:15:00'),
-  (4,  'SN-26.0204104', 1, '/products/monitors.svg',     'Dell UltraSharp U2723QE',            'Monitors', '27" 4K UHD, IPS Black, USB-C', 'free', '2026-02-04 10:15:00', '2029-02-04 10:15:00', 1, '2026-02-04 10:15:00'),
-  (5,  'SN-26.0204105', 0, '/products/monitors.svg',     'Dell P2422H',                        'Monitors', '24" Full HD, IPS', 'free', '2026-02-04 10:15:00', '2027-02-04 10:15:00', 1, '2026-02-04 10:15:00'),
+  (1,  'SN-26.0204101', 1, '/icons/monitors.svg',     'Samsung Odyssey G5 27" (LS27CG552)', 'Мониторы', '27" QHD, 165 Hz, VA', 'free',   '2026-02-04 10:15:00', '2028-02-04 10:15:00', 1, '2026-02-04 10:15:00'),
+  (2,  'SN-26.0204102', 0, '/icons/monitors.svg',     'Samsung Odyssey G5 27" (LS27CG552)', 'Мониторы', '27" QHD, 165 Hz, VA', 'repair', '2026-02-04 10:15:00', '2028-02-04 10:15:00', 1, '2026-02-04 10:15:00'),
+  (3,  'SN-26.0204103', 1, '/icons/monitors.svg',     'Dell UltraSharp U2723QE',            'Мониторы', '27" 4K UHD, IPS Black, USB-C', 'free', '2026-02-04 10:15:00', '2029-02-04 10:15:00', 1, '2026-02-04 10:15:00'),
+  (4,  'SN-26.0204104', 1, '/icons/monitors.svg',     'Dell UltraSharp U2723QE',            'Мониторы', '27" 4K UHD, IPS Black, USB-C', 'free', '2026-02-04 10:15:00', '2029-02-04 10:15:00', 1, '2026-02-04 10:15:00'),
+  (5,  'SN-26.0204105', 0, '/icons/monitors.svg',     'Dell P2422H',                        'Мониторы', '24" Full HD, IPS', 'free', '2026-02-04 10:15:00', '2027-02-04 10:15:00', 1, '2026-02-04 10:15:00'),
 
-  (6,  'SN-26.0312201', 1, '/products/laptops.svg',      'Lenovo ThinkPad T14 Gen 5',          'Laptops', 'Intel Core Ultra 7, 32 GB RAM, 1 TB SSD', 'free', '2026-03-12 14:30:00', '2029-03-12 14:30:00', 2, '2026-03-12 14:30:00'),
-  (7,  'SN-26.0312202', 1, '/products/laptops.svg',      'Lenovo ThinkPad T14 Gen 5',          'Laptops', 'Intel Core Ultra 7, 32 GB RAM, 1 TB SSD', 'free', '2026-03-12 14:30:00', '2029-03-12 14:30:00', 2, '2026-03-12 14:30:00'),
-  (8,  'SN-26.0312203', 1, '/products/laptops.svg',      'Apple MacBook Air 13 M3',            'Laptops', 'Apple M3, 16 GB RAM, 512 GB SSD', 'free', '2026-03-12 14:30:00', '2027-03-12 14:30:00', 2, '2026-03-12 14:30:00'),
-  (9,  'SN-26.0312204', 0, '/products/laptops.svg',      'Dell Latitude 5440',                 'Laptops', 'Intel Core i5-1345U, 16 GB RAM, 512 GB SSD', 'repair', '2026-03-12 14:30:00', '2027-03-12 14:30:00', 2, '2026-03-12 14:30:00'),
+  (6,  'SN-26.0312201', 1, '/icons/laptops.svg',      'Lenovo ThinkPad T14 Gen 5',          'Ноутбуки', 'Intel Core Ultra 7, 32 GB RAM, 1 TB SSD', 'free', '2026-03-12 14:30:00', '2029-03-12 14:30:00', 2, '2026-03-12 14:30:00'),
+  (7,  'SN-26.0312202', 1, '/icons/laptops.svg',      'Lenovo ThinkPad T14 Gen 5',          'Ноутбуки', 'Intel Core Ultra 7, 32 GB RAM, 1 TB SSD', 'free', '2026-03-12 14:30:00', '2029-03-12 14:30:00', 2, '2026-03-12 14:30:00'),
+  (8,  'SN-26.0312203', 1, '/icons/laptops.svg',      'Apple MacBook Air 13 M3',            'Ноутбуки', 'Apple M3, 16 GB RAM, 512 GB SSD', 'free', '2026-03-12 14:30:00', '2027-03-12 14:30:00', 2, '2026-03-12 14:30:00'),
+  (9,  'SN-26.0312204', 0, '/icons/laptops.svg',      'Dell Latitude 5440',                 'Ноутбуки', 'Intel Core i5-1345U, 16 GB RAM, 512 GB SSD', 'repair', '2026-03-12 14:30:00', '2027-03-12 14:30:00', 2, '2026-03-12 14:30:00'),
 
-  (10, 'SN-26.0422301', 1, '/products/keyboards.svg',    'Logitech MX Keys S',                 'Keyboards', 'Wireless, backlit, UA/EN layout', 'free', '2026-04-22 09:05:00', '2028-04-22 09:05:00', 3, '2026-04-22 09:05:00'),
-  (11, 'SN-26.0422302', 1, '/products/keyboards.svg',    'Logitech MX Keys S',                 'Keyboards', 'Wireless, backlit, UA/EN layout', 'free', '2026-04-22 09:05:00', '2028-04-22 09:05:00', 3, '2026-04-22 09:05:00'),
-  (12, 'SN-26.0422303', 0, '/products/keyboards.svg',    'Logitech MX Keys S',                 'Keyboards', 'Wireless, backlit, UA/EN layout', 'repair', '2026-04-22 09:05:00', '2028-04-22 09:05:00', 3, '2026-04-22 09:05:00'),
-  (13, 'SN-26.0422304', 1, '/products/keyboards.svg',    'Keychron K8 Pro',                    'Keyboards', 'Mechanical, Gateron Brown, TKL', 'free', '2026-04-22 09:05:00', '2027-04-22 09:05:00', 3, '2026-04-22 09:05:00'),
-  (14, 'SN-26.0422305', 1, '/products/keyboards.svg',    'Logitech K380',                      'Keyboards', 'Bluetooth, multi-device, compact', 'free', '2026-04-22 09:05:00', '2027-04-22 09:05:00', 3, '2026-04-22 09:05:00'),
+  (10, 'SN-26.0422301', 1, '/icons/keyboards.svg',    'Logitech MX Keys S',                 'Клавиатуры', 'Wireless, backlit, UA/EN layout', 'free', '2026-04-22 09:05:00', '2028-04-22 09:05:00', 3, '2026-04-22 09:05:00'),
+  (11, 'SN-26.0422302', 1, '/icons/keyboards.svg',    'Logitech MX Keys S',                 'Клавиатуры', 'Wireless, backlit, UA/EN layout', 'free', '2026-04-22 09:05:00', '2028-04-22 09:05:00', 3, '2026-04-22 09:05:00'),
+  (12, 'SN-26.0422303', 0, '/icons/keyboards.svg',    'Logitech MX Keys S',                 'Клавиатуры', 'Wireless, backlit, UA/EN layout', 'repair', '2026-04-22 09:05:00', '2028-04-22 09:05:00', 3, '2026-04-22 09:05:00'),
+  (13, 'SN-26.0422304', 1, '/icons/keyboards.svg',    'Keychron K8 Pro',                    'Клавиатуры', 'Mechanical, Gateron Brown, TKL', 'free', '2026-04-22 09:05:00', '2027-04-22 09:05:00', 3, '2026-04-22 09:05:00'),
+  (14, 'SN-26.0422305', 1, '/icons/keyboards.svg',    'Logitech K380',                      'Клавиатуры', 'Bluetooth, multi-device, compact', 'free', '2026-04-22 09:05:00', '2027-04-22 09:05:00', 3, '2026-04-22 09:05:00'),
 
-  (15, 'SN-12.3456789', 0, '/products/motherboards.svg', 'Gigabyte Technology X58-USB3 (Socket 1366) 6 X58-USB3', 'Motherboards', 'Socket 1366, Intel X58, ATX', 'free', '2026-05-18 16:40:00', '2027-05-18 16:40:00', 4, '2026-05-18 16:40:00'),
-  (16, 'SN-12.3456790', 0, '/products/motherboards.svg', 'Gigabyte Technology X58-USB3 (Socket 1366) 6 X58-USB3', 'Motherboards', 'Socket 1366, Intel X58, ATX', 'repair', '2026-05-18 16:40:00', '2027-05-18 16:40:00', 4, '2026-05-18 16:40:00'),
-  (17, 'SN-26.0518403', 1, '/products/motherboards.svg', 'Gigabyte B650 AORUS Elite AX',       'Motherboards', 'Socket AM5, AMD B650, ATX, Wi-Fi 6E', 'free', '2026-05-18 16:40:00', '2029-05-18 16:40:00', 4, '2026-05-18 16:40:00'),
-  (18, 'SN-26.0518404', 1, '/products/motherboards.svg', 'Gigabyte Z790 AORUS Pro X',          'Motherboards', 'Socket LGA1700, Intel Z790, ATX', 'free', '2026-05-18 16:40:00', '2029-05-18 16:40:00', 4, '2026-05-18 16:40:00'),
+  (15, 'SN-12.3456789', 0, '/icons/motherboards.svg', 'Gigabyte Technology X58-USB3 (Socket 1366) 6 X58-USB3', 'Материнские платы', 'Socket 1366, Intel X58, ATX', 'free', '2026-05-18 16:40:00', '2027-05-18 16:40:00', 4, '2026-05-18 16:40:00'),
+  (16, 'SN-12.3456790', 0, '/icons/motherboards.svg', 'Gigabyte Technology X58-USB3 (Socket 1366) 6 X58-USB3', 'Материнские платы', 'Socket 1366, Intel X58, ATX', 'repair', '2026-05-18 16:40:00', '2027-05-18 16:40:00', 4, '2026-05-18 16:40:00'),
+  (17, 'SN-26.0518403', 1, '/icons/motherboards.svg', 'Gigabyte B650 AORUS Elite AX',       'Материнские платы', 'Socket AM5, AMD B650, ATX, Wi-Fi 6E', 'free', '2026-05-18 16:40:00', '2029-05-18 16:40:00', 4, '2026-05-18 16:40:00'),
+  (18, 'SN-26.0518404', 1, '/icons/motherboards.svg', 'Gigabyte Z790 AORUS Pro X',          'Материнские платы', 'Socket LGA1700, Intel Z790, ATX', 'free', '2026-05-18 16:40:00', '2029-05-18 16:40:00', 4, '2026-05-18 16:40:00'),
 
-  (19, 'SN-26.0701501', 1, '/products/phones.svg',       'Samsung Galaxy A55 5G',              'Phones', '8/256 GB, 6.6" Super AMOLED', 'free', '2026-07-01 11:20:00', '2027-07-01 11:20:00', 5, '2026-07-01 11:20:00'),
-  (20, 'SN-26.0701502', 1, '/products/phones.svg',       'Samsung Galaxy A55 5G',              'Phones', '8/256 GB, 6.6" Super AMOLED', 'free', '2026-07-01 11:20:00', '2027-07-01 11:20:00', 5, '2026-07-01 11:20:00'),
-  (21, 'SN-26.0701503', 1, '/products/phones.svg',       'Samsung Galaxy A55 5G',              'Phones', '8/256 GB, 6.6" Super AMOLED', 'repair', '2026-07-01 11:20:00', '2027-07-01 11:20:00', 5, '2026-07-01 11:20:00'),
-  (22, 'SN-26.0701504', 1, '/products/phones.svg',       'Apple iPhone 16',                    'Phones', '128 GB, 6.1" Super Retina XDR', 'free', '2026-07-01 11:20:00', '2027-07-01 11:20:00', 5, '2026-07-01 11:20:00'),
+  (19, 'SN-26.0701501', 1, '/icons/phones.svg',       'Samsung Galaxy A55 5G',              'Телефоны', '8/256 GB, 6.6" Super AMOLED', 'free', '2026-07-01 11:20:00', '2027-07-01 11:20:00', 5, '2026-07-01 11:20:00'),
+  (20, 'SN-26.0701502', 1, '/icons/phones.svg',       'Samsung Galaxy A55 5G',              'Телефоны', '8/256 GB, 6.6" Super AMOLED', 'free', '2026-07-01 11:20:00', '2027-07-01 11:20:00', 5, '2026-07-01 11:20:00'),
+  (21, 'SN-26.0701503', 1, '/icons/phones.svg',       'Samsung Galaxy A55 5G',              'Телефоны', '8/256 GB, 6.6" Super AMOLED', 'repair', '2026-07-01 11:20:00', '2027-07-01 11:20:00', 5, '2026-07-01 11:20:00'),
+  (22, 'SN-26.0701504', 1, '/icons/phones.svg',       'Apple iPhone 16',                    'Телефоны', '128 GB, 6.1" Super Retina XDR', 'free', '2026-07-01 11:20:00', '2027-07-01 11:20:00', 5, '2026-07-01 11:20:00'),
 
-  (23, 'SN-26.0827601', 1, '/products/monitors.svg',     'Apple Studio Display',               'Monitors', '27" 5K Retina, Nano-texture', 'free', '2026-08-27 13:00:00', '2027-08-27 13:00:00', 6, '2026-08-27 13:00:00'),
-  (24, 'SN-26.0827602', 1, '/products/monitors.svg',     'Dell UltraSharp U3225QE',            'Monitors', '32" 4K UHD, IPS Black, 120 Hz', 'free', '2026-08-27 13:00:00', '2029-08-27 13:00:00', 6, '2026-08-27 13:00:00'),
-  (25, 'SN-26.0827603', 0, '/products/monitors.svg',     'BenQ PD2706UA',                      'Monitors', '27" 4K UHD, IPS, Pantone Validated', 'free', '2026-08-27 13:00:00', '2029-08-27 13:00:00', 6, '2026-08-27 13:00:00');
+  (23, 'SN-26.0827601', 1, '/icons/monitors.svg',     'Apple Studio Display',               'Мониторы', '27" 5K Retina, Nano-texture', 'free', '2026-08-27 13:00:00', '2027-08-27 13:00:00', 6, '2026-08-27 13:00:00'),
+  (24, 'SN-26.0827602', 1, '/icons/monitors.svg',     'Dell UltraSharp U3225QE',            'Мониторы', '32" 4K UHD, IPS Black, 120 Hz', 'free', '2026-08-27 13:00:00', '2029-08-27 13:00:00', 6, '2026-08-27 13:00:00'),
+  (25, 'SN-26.0827603', 0, '/icons/monitors.svg',     'BenQ PD2706UA',                      'Мониторы', '27" 4K UHD, IPS, Pantone Validated', 'free', '2026-08-27 13:00:00', '2029-08-27 13:00:00', 6, '2026-08-27 13:00:00');
 
 INSERT INTO `product_prices` (`product_id`, `value`, `symbol`, `is_default`) VALUES
   (1, 289, 'USD', 0),  (1, 11993.50, 'UAH', 1),

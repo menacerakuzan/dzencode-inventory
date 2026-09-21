@@ -13,7 +13,7 @@ export const makeProduct = (overrides: Partial<Product> = {}): Product => ({
   id: 1,
   serialNumber: 'SN-1234',
   isNew: true,
-  photo: '/products/monitors.svg',
+  photo: '/icons/monitors.svg',
   title: 'Product 1',
   type: 'Monitors',
   specification: 'Specification 1',

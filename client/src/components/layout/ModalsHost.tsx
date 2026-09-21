@@ -11,14 +11,14 @@ const ProductFormModal = dynamic(() => import('@/components/modals/ProductFormMo
 
 export default function ModalsHost() {
   const deleteTarget = useAppSelector((state) => state.ui.deleteTarget);
-  const orderFormOpen = useAppSelector((state) => state.ui.orderFormOpen);
-  const productFormOrderId = useAppSelector((state) => state.ui.productFormOrderId);
+  const orderForm = useAppSelector((state) => state.ui.orderForm);
+  const productForm = useAppSelector((state) => state.ui.productForm);
 
   return (
     <AnimatePresence>
       {deleteTarget && <ConfirmDeleteModal key="delete" target={deleteTarget} />}
-      {orderFormOpen && <OrderFormModal key="order-form" />}
-      {productFormOrderId !== null && <ProductFormModal key="product-form" orderId={productFormOrderId || null} />}
+      {orderForm && <OrderFormModal key="order-form" id={orderForm.id} />}
+      {productForm && <ProductFormModal key="product-form" {...productForm} />}
     </AnimatePresence>
   );
 }

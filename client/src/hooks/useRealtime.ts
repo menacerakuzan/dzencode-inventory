@@ -2,10 +2,9 @@
 
 import { useEffect } from 'react';
 import { io } from 'socket.io-client';
+import { WS_URL } from '@/lib/config';
 import { useAppDispatch } from '@/store/hooks';
 import { activeTabsChanged, connectionChanged } from '@/store/slices/sessionSlice';
-
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL;
 
 /** One socket per tab: the server counts sockets and pushes the number of active tabs. */
 export function useRealtime(): void {

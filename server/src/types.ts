@@ -1,4 +1,5 @@
-export type Currency = 'USD' | 'UAH';
+/** ISO 4217 code, e.g. "UAH". The list of allowed currencies comes from the config. */
+export type Currency = string;
 export type ProductStatus = 'free' | 'repair';
 
 export interface Price {
@@ -49,8 +50,8 @@ export interface UserWithPassword extends User {
   passwordHash: string;
 }
 
-export type NewOrder = Omit<Order, 'id'>;
-export type NewProduct = Omit<Product, 'id' | 'photo' | 'date'>;
+export type OrderInput = Omit<Order, 'id'>;
+export type ProductInput = Omit<Product, 'id' | 'date'>;
 
 export interface Repositories {
   users: {
@@ -60,12 +61,16 @@ export interface Repositories {
   orders: {
     list(): Promise<Order[]>;
     exists(id: number): Promise<boolean>;
-    create(order: NewOrder): Promise<Order>;
+    create(order: OrderInput): Promise<Order>;
+    /** `null` when the order does not exist. */
+    update(id: number, order: OrderInput): Promise<Order | null>;
     remove(id: number): Promise<boolean>;
   };
   products: {
     list(filter?: { type?: string; orderId?: number }): Promise<Product[]>;
-    create(product: NewProduct): Promise<Product>;
+    create(product: ProductInput): Promise<Product>;
+    /** `null` when the product does not exist. */
+    update(id: number, product: ProductInput): Promise<Product | null>;
     remove(id: number): Promise<boolean>;
   };
   warehouses: {

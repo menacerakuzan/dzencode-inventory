@@ -8,7 +8,7 @@ import ProductItem from '@/components/products/ProductItem';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectProductsByOrderId, selectWarehouses } from '@/store/selectors';
 import { orderSelected } from '@/store/slices/ordersSlice';
-import { deleteRequested, productFormOpened } from '@/store/slices/uiSlice';
+import { deleteRequested, orderFormOpened, productFormOpened } from '@/store/slices/uiSlice';
 import type { OrderSummary } from '@/types';
 
 const EMPTY: never[] = [];
@@ -54,7 +54,18 @@ export default function OrderDetails({ order }: { order: OrderSummary }) {
       </button>
 
       <header className="order-details__header">
-        <h2 className="order-details__title">{order.title}</h2>
+        <div className="order-details__heading">
+          <h2 className="order-details__title">{order.title}</h2>
+          <button
+            type="button"
+            className="icon-button icon-button--edit"
+            onClick={() => dispatch(orderFormOpened({ id: order.id }))}
+            aria-label={t('edit')}
+            title={t('edit')}
+          >
+            <i className="bi bi-pencil-fill" aria-hidden />
+          </button>
+        </div>
         {(warehouse || order.description) && (
           <p className="order-details__meta">
             {warehouse && (
@@ -66,7 +77,7 @@ export default function OrderDetails({ order }: { order: OrderSummary }) {
           </p>
         )}
         {warehouse && <WarehouseMap key={warehouse.id} warehouse={warehouse} />}
-        <button type="button" className="add-link" onClick={() => dispatch(productFormOpened(order.id))}>
+        <button type="button" className="add-link" onClick={() => dispatch(productFormOpened({ id: null, orderId: order.id }))}>
           <span className="add-link__icon" aria-hidden>
             <i className="bi bi-plus" />
           </span>
@@ -81,6 +92,7 @@ export default function OrderDetails({ order }: { order: OrderSummary }) {
               <ProductItem
                 key={product.id}
                 product={product}
+                onEdit={() => dispatch(productFormOpened({ id: product.id, orderId: order.id }))}
                 onDelete={() => dispatch(deleteRequested({ kind: 'product', id: product.id }))}
               />
             ))}
