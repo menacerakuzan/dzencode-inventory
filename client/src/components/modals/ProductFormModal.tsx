@@ -2,81 +2,94 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
-import { useId, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useId, useMemo, useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
+import PhotoPicker from '@/components/products/PhotoPicker';
 import FormField, { fieldProps } from '@/components/ui/FormField';
 import Modal from '@/components/ui/Modal';
 import { cn } from '@/lib/cn';
 import { toSqlDateTime } from '@/lib/format';
-import { productFormSchema, type ProductFormValues } from '@/lib/validation';
+import { makeProductFormSchema, type ProductFormValues } from '@/lib/validation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { selectOrders, selectProductTypes } from '@/store/selectors';
-import { createProduct } from '@/store/slices/productsSlice';
-import { productFormClosed } from '@/store/slices/uiSlice';
+import { selectOrders, selectProductTypes, selectSettings } from '@/store/selectors';
+import { createProduct, updateProduct } from '@/store/slices/productsSlice';
+import { productFormClosed, type ProductForm } from '@/store/slices/uiSlice';
+import type { Product } from '@/types';
 
-const today = () => toSqlDateTime(new Date()).slice(0, 10);
-const inYears = (years: number) => {
+const dateOnly = (date: Date) => toSqlDateTime(date).slice(0, 10);
+const inOneYear = () => {
   const date = new Date();
-  date.setFullYear(date.getFullYear() + years);
-  return toSqlDateTime(date).slice(0, 10);
+  date.setFullYear(date.getFullYear() + 1);
+  return dateOnly(date);
 };
 
-export default function ProductFormModal({ orderId }: { orderId: number | null }) {
+// Prices of a new product start empty (undefined, not NaN), so number inputs render blank.
+const toFormValues = (product: Product | undefined, orderId: number | null): Partial<ProductFormValues> => ({
+  order: String(product?.order ?? orderId ?? ''),
+  title: product?.title ?? '',
+  serialNumber: product?.serialNumber ?? '',
+  type: product?.type ?? '',
+  specification: product?.specification ?? '',
+  status: product?.status ?? 'free',
+  condition: product && !product.isNew ? 'used' : 'new',
+  guaranteeStart: product?.guarantee.start.slice(0, 10) ?? dateOnly(new Date()),
+  guaranteeEnd: product?.guarantee.end.slice(0, 10) ?? inOneYear(),
+  photo: product?.photo ?? null,
+  prices: Object.fromEntries((product?.price ?? []).map((price) => [price.symbol, price.value])),
+});
+
+/** Creates a new product (`id: null`) or edits an existing one. */
+export default function ProductFormModal({ id, orderId }: ProductForm) {
   const t = useTranslations('productForm');
   const tp = useTranslations('products');
   const tc = useTranslations('common');
   const dispatch = useAppDispatch();
   const orders = useAppSelector(selectOrders);
   const types = useAppSelector(selectProductTypes);
+  const { currencies, defaultCurrency } = useAppSelector(selectSettings);
+  const existing = useAppSelector((state) => state.products.items.find((product) => product.id === id));
   const titleId = useId();
-  // Prices start empty (undefined), not NaN, so number inputs render blank.
-  const [defaults] = useState<Partial<ProductFormValues>>(() => ({
-    order: orderId ? String(orderId) : '',
-    title: '',
-    serialNumber: '',
-    type: '',
-    specification: '',
-    status: 'free',
-    condition: 'new',
-    guaranteeStart: today(),
-    guaranteeEnd: inYears(1),
-  }));
+  const [defaultValues] = useState(() => toFormValues(existing, orderId));
+  const schema = useMemo(() => makeProductFormSchema(currencies), [currencies]);
 
   const {
     register,
     handleSubmit,
     setError,
+    setValue,
+    control: formControl,
     formState: { errors, isSubmitting },
   } = useForm<ProductFormValues>({
-    resolver: zodResolver(productFormSchema),
+    resolver: zodResolver(schema),
     mode: 'onTouched',
-    defaultValues: defaults,
+    defaultValues,
   });
+  const photo = useWatch({ control: formControl, name: 'photo' });
 
   const close = () => dispatch(productFormClosed());
 
   const onSubmit = handleSubmit(async (values) => {
-    const result = await dispatch(
-      createProduct({
-        order: Number(values.order),
-        title: values.title,
-        serialNumber: values.serialNumber,
-        type: values.type,
-        specification: values.specification,
-        status: values.status,
-        isNew: values.condition === 'new',
-        guarantee: { start: `${values.guaranteeStart} 00:00:00`, end: `${values.guaranteeEnd} 23:59:59` },
-        price: [
-          { value: values.priceUsd, symbol: 'USD', isDefault: false },
-          { value: values.priceUah, symbol: 'UAH', isDefault: true },
-        ],
-      }),
-    );
-    if (createProduct.fulfilled.match(result)) {
-      close();
-    } else {
-      setError('root', { message: tc('actionFailed', { message: result.payload ?? '' }) });
-    }
+    const product = {
+      order: Number(values.order),
+      title: values.title,
+      serialNumber: values.serialNumber,
+      type: values.type,
+      specification: values.specification,
+      status: values.status,
+      isNew: values.condition === 'new',
+      photo: values.photo,
+      guarantee: { start: `${values.guaranteeStart} 00:00:00`, end: `${values.guaranteeEnd} 23:59:59` },
+      price: currencies.map((symbol) => ({
+        value: values.prices[symbol]!,
+        symbol,
+        isDefault: symbol === defaultCurrency,
+      })),
+    };
+    const result =
+      id === null ? await dispatch(createProduct(product)) : await dispatch(updateProduct({ id, product }));
+
+    if (result.meta.requestStatus === 'fulfilled') close();
+    else setError('root', { message: tc('actionFailed', { message: String(result.payload ?? '') }) });
   });
 
   const control = (name: keyof ProductFormValues) => cn(errors[name] && 'is-invalid');
@@ -85,7 +98,7 @@ export default function ProductFormModal({ orderId }: { orderId: number | null }
     <Modal titleId={titleId} onClose={close} className="form-modal form-modal--wide">
       <form onSubmit={onSubmit} noValidate>
         <h2 id={titleId} className="form-modal__title">
-          {t('title')}
+          {t(id === null ? 'title' : 'editTitle')}
         </h2>
 
         <div className="form-modal__body">
@@ -181,28 +194,33 @@ export default function ProductFormModal({ orderId }: { orderId: number | null }
           </div>
 
           <div className="form-modal__row">
-            <FormField id="product-usd" label={t('priceUsd')} error={errors.priceUsd?.message}>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                inputMode="decimal"
-                {...fieldProps('product-usd', errors.priceUsd?.message)}
-                {...register('priceUsd', { valueAsNumber: true })}
-                className={cn('form-control', control('priceUsd'))}
-              />
-            </FormField>
-            <FormField id="product-uah" label={t('priceUah')} error={errors.priceUah?.message}>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                inputMode="decimal"
-                {...fieldProps('product-uah', errors.priceUah?.message)}
-                {...register('priceUah', { valueAsNumber: true })}
-                className={cn('form-control', control('priceUah'))}
-              />
-            </FormField>
+            {currencies.map((currency) => {
+              const fieldId = `product-price-${currency}`;
+              const error = errors.prices?.[currency]?.message;
+              return (
+                <FormField
+                  key={currency}
+                  id={fieldId}
+                  label={t(currency === defaultCurrency ? 'priceMain' : 'price', { currency })}
+                  error={error}
+                >
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    inputMode="decimal"
+                    {...fieldProps(fieldId, error)}
+                    {...register(`prices.${currency}`, { valueAsNumber: true })}
+                    className={cn('form-control', error && 'is-invalid')}
+                  />
+                </FormField>
+              );
+            })}
+          </div>
+
+          <div className="form-field">
+            <span className="form-label form-field__label">{t('photo')}</span>
+            <PhotoPicker value={photo} onChange={(value) => setValue('photo', value, { shouldDirty: true })} />
           </div>
 
           {errors.root && (
@@ -218,7 +236,7 @@ export default function ProductFormModal({ orderId }: { orderId: number | null }
           </button>
           <button type="submit" className="btn btn-success form-modal__submit" disabled={isSubmitting}>
             {isSubmitting && <span className="spinner-border spinner-border-sm me-2" aria-hidden />}
-            {t('submit')}
+            {t(id === null ? 'submit' : 'save')}
           </button>
         </div>
       </form>

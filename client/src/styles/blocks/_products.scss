@@ -51,7 +51,7 @@
   display: grid;
   grid-template-columns:
     8px 48px minmax(0, 2.2fr) 96px 196px 128px minmax(0, 1.3fr)
-    minmax(0, 1.5fr) 100px 32px;
+    minmax(0, 1.5fr) 100px 68px;
   align-items: center;
   gap: 16px;
   min-height: 64px;
@@ -115,6 +115,11 @@
     font-weight: 600;
   }
 
+  &__actions {
+    display: flex;
+    gap: 4px;
+  }
+
   &__order {
     line-height: 1.35;
   }
@@ -130,7 +135,7 @@
   @media (max-width: 1599.98px) {
     grid-template-columns:
       8px 48px minmax(0, 2fr) 96px 196px 128px minmax(0, 1.2fr)
-      minmax(0, 1.4fr) 32px;
+      minmax(0, 1.4fr) 68px;
     gap: 14px;
 
     &__date {
@@ -140,7 +145,7 @@
 
   // Tablets and phones: the row turns into a card, details stack under the title.
   @include down($bp-lg) {
-    grid-template-columns: 8px 48px minmax(0, 1fr) 32px;
+    grid-template-columns: 8px 48px minmax(0, 1fr) 36px;
     align-items: start;
     gap: 6px 14px;
     padding: 14px 10px 14px 14px;
@@ -164,9 +169,10 @@
       grid-row: 1;
     }
 
-    &__delete {
+    &__actions {
       grid-column: 4;
       grid-row: 1;
+      flex-direction: column;
     }
 
     &__state {

@@ -9,6 +9,7 @@ export const selectProducts = (state: RootState) => state.products.items;
 export const selectTypeFilter = (state: RootState) => state.products.typeFilter;
 export const selectSearch = (state: RootState) => state.ui.search;
 export const selectWarehouses = (state: RootState) => state.session.warehouses;
+export const selectSettings = (state: RootState) => state.session.settings;
 
 const normalize = (value: string) => value.trim().toLowerCase();
 

@@ -21,8 +21,6 @@ export default function ProductsFilter() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const typeLabel = (value: string) => (t.has(`types.${value}`) ? t(`types.${value}`) : value);
-
   return (
     <label className="products-filter">
       <span className="products-filter__label">{t('type')}:</span>
@@ -34,7 +32,7 @@ export default function ProductsFilter() {
         <option value="">{t('all')}</option>
         {types.map((value) => (
           <option key={value} value={value}>
-            {typeLabel(value)}
+            {value}
           </option>
         ))}
       </select>

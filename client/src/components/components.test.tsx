@@ -144,18 +144,18 @@ describe('ConfirmDeleteModal', () => {
 });
 
 describe('ProductsFilter', () => {
-  it('offers translated product types and restores the saved type from localStorage', () => {
-    window.localStorage.setItem('inventory:product-type', 'Laptops');
+  it('offers product types from the data and restores the saved type from localStorage', () => {
+    window.localStorage.setItem('inventory:product-type', 'Ноутбуки');
     const { store } = renderWithProviders(<ProductsFilter />, {
       products: {
-        items: [makeProduct({ id: 1, type: 'Monitors' }), makeProduct({ id: 2, type: 'Laptops' })],
+        items: [makeProduct({ id: 1, type: 'Мониторы' }), makeProduct({ id: 2, type: 'Ноутбуки' })],
         typeFilter: '',
       },
     });
 
     const typeSelect = screen.getByRole('combobox', { name: 'Тип:' });
     expect(within(typeSelect).getByRole('option', { name: 'Мониторы' })).toBeInTheDocument();
-    expect(store.getState().products.typeFilter).toBe('Laptops');
-    expect(typeSelect).toHaveValue('Laptops');
+    expect(store.getState().products.typeFilter).toBe('Ноутбуки');
+    expect(typeSelect).toHaveValue('Ноутбуки');
   });
 });

@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       { source: '/api/:path*', destination: `${apiUrl}/api/:path*` },
+      { source: '/icons/:path*', destination: `${apiUrl}/icons/:path*` },
+      { source: '/uploads/:path*', destination: `${apiUrl}/uploads/:path*` },
       // Browsers request /favicon.ico on their own; serve the SVG icon instead of a 404.
       { source: '/favicon.ico', destination: '/favicon.svg' },
     ];

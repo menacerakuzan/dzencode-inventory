@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { User, Warehouse } from '@/types';
+import type { Settings, User, Warehouse } from '@/types';
 
 export interface SessionState {
   user: User | null;
@@ -7,9 +7,16 @@ export interface SessionState {
   activeTabs: number | null;
   connected: boolean;
   warehouses: Warehouse[];
+  settings: Settings;
 }
 
-const initialState: SessionState = { user: null, activeTabs: null, connected: false, warehouses: [] };
+const initialState: SessionState = {
+  user: null,
+  activeTabs: null,
+  connected: false,
+  warehouses: [],
+  settings: { currencies: [], defaultCurrency: '' },
+};
 
 const sessionSlice = createSlice({
   name: 'session',

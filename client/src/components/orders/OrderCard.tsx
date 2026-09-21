@@ -6,9 +6,10 @@ import DateStack from '@/components/ui/DateStack';
 import PriceStack from '@/components/ui/PriceStack';
 import { cn } from '@/lib/cn';
 import { totalsToPrices } from '@/lib/format';
-import { useAppDispatch } from '@/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { selectSettings } from '@/store/selectors';
 import { orderSelected } from '@/store/slices/ordersSlice';
-import { deleteRequested } from '@/store/slices/uiSlice';
+import { deleteRequested, orderFormOpened } from '@/store/slices/uiSlice';
 import type { OrderSummary } from '@/types';
 
 interface Props {
@@ -21,6 +22,7 @@ interface Props {
 export default function OrderCard({ order, compact, active, index }: Props) {
   const t = useTranslations('orders');
   const dispatch = useAppDispatch();
+  const { currencies, defaultCurrency } = useAppSelector(selectSettings);
 
   return (
     <motion.li
@@ -47,18 +49,30 @@ export default function OrderCard({ order, compact, active, index }: Props) {
           <span className="order-card__count-label">{t('productsCount', { count: order.productsCount })}</span>
         </span>
         <DateStack className="order-card__date" date={order.date} />
-        {!compact && <PriceStack className="order-card__price" prices={totalsToPrices(order.totals)} />}
+        {!compact && <PriceStack className="order-card__price" prices={totalsToPrices(order.totals, currencies, defaultCurrency)} />}
       </button>
 
       {!compact && (
-        <button
-          type="button"
-          className="icon-button order-card__delete"
-          onClick={() => dispatch(deleteRequested({ kind: 'order', id: order.id }))}
-          aria-label={t('delete')}
-        >
-          <i className="bi bi-trash3-fill" aria-hidden />
-        </button>
+        <span className="order-card__actions">
+          <button
+            type="button"
+            className="icon-button icon-button--edit"
+            onClick={() => dispatch(orderFormOpened({ id: order.id }))}
+            aria-label={t('edit')}
+            title={t('edit')}
+          >
+            <i className="bi bi-pencil-fill" aria-hidden />
+          </button>
+          <button
+            type="button"
+            className="icon-button"
+            onClick={() => dispatch(deleteRequested({ kind: 'order', id: order.id }))}
+            aria-label={t('delete')}
+            title={t('delete')}
+          >
+            <i className="bi bi-trash3-fill" aria-hidden />
+          </button>
+        </span>
       )}
 
       {active && (

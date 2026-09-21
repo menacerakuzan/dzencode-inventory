@@ -10,6 +10,9 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   const [{ next }, t] = await Promise.all([searchParams, getTranslations('login')]);
+  // Demo credentials are shown only when configured (env DEMO_EMAIL / DEMO_PASSWORD).
+  const { DEMO_EMAIL: email, DEMO_PASSWORD: password } = process.env;
+  const demo = email && password ? { email, password } : undefined;
 
   return (
     <main className="login-page">
@@ -20,7 +23,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         </div>
         <h1 className="login-card__title">{t('title')}</h1>
         <p className="login-card__subtitle">{t('subtitle')}</p>
-        <LoginForm next={next} />
+        <LoginForm next={next} demo={demo} />
       </section>
     </main>
   );

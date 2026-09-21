@@ -64,14 +64,15 @@ docker compose up -d --build
   - продукты прихода;
   - «Добавить продукт».
 - Открытый приход сохраняется в URL (`/orders?order=1`): ссылкой можно поделиться, после перезагрузки он откроется снова.
-- Кнопка «+» открывает форму создания прихода с валидацией.
+- Кнопка «+» открывает форму создания прихода с валидацией, карандаш — редактирование прихода.
 - Удаление через попап по макету. Попап показывает продукты, которые будут удалены вместе с приходом (каскадно).
 
 **Продукты (Products)**
 - Все продукты. У каждого: статус, название, серийный номер, гарантия «с … по …» в двух форматах, состояние (новый / Б/У), цена в двух валютах, тип, спецификация, название прихода (ссылка на приход), дата.
 - Фильтр по **типу** (один select). Выбранный тип запоминается в `localStorage`.
 - Над списком график «Продукты по типам» (Recharts).
-- Добавление продукта через форму с валидацией. Удаление через тот же попап.
+- Добавление и редактирование продукта через форму с валидацией (карандаш в строке). Удаление через тот же попап.
+- Фото продукта: одна из встроенных иконок или своё изображение (PNG/JPEG/WEBP/GIF, загрузка на сервер).
 
 **Адаптивность.** Вёрстка работает от 360px до широких экранов:
 - на телефоне сайдбар становится горизонтальным меню;
@@ -140,24 +141,44 @@ docker compose up -d --build
 .
 ├── client/                 Next.js-приложение
 │   ├── messages/           словари i18n (ru, uk, en)
-│   ├── public/products/    иконки продуктов
 │   └── src/
 │       ├── app/            роуты: (dashboard)/orders|products, login
 │       ├── components/     layout, orders, products, modals, ui, auth
 │       ├── hooks/          useRealtime (Socket.io), useNow (часы)
 │       ├── i18n/           конфиг next-intl
-│       ├── lib/            api, serverApi, format, validation, storage
+│       ├── lib/            api, serverApi, config, format, validation, storage
 │       ├── store/          Redux: slices, selectors, StoreProvider, StoreHydrator
 │       ├── styles/         SCSS: abstracts, base, blocks (БЭМ)
 │       └── proxy.ts        защита страниц (бывший middleware)
 ├── server/
-│   ├── src/                app, http (routes, auth, schemas, errors), db, realtime
+│   ├── src/                app, config, http (routes, auth, schemas, errors), db, realtime
+│   ├── public/icons/       встроенные иконки продуктов (добавьте файл — появится в форме)
 │   └── test/               тесты API и WebSocket
 ├── db/                     schema.sql, seed.sql
 ├── nginx/nginx.conf
 ├── docs/screenshots/
 └── docker-compose.yml
 ```
+
+## Настройка через переменные окружения
+
+В коде нет захардкоженных значений предметной области: всё, что может отличаться между окружениями, задаётся в `.env` (для Docker) или `server/.env` / `client/.env.development` (для разработки).
+
+| Переменная | По умолчанию | Что настраивает |
+|---|---|---|
+| `CURRENCIES` | `UAH,USD` | валюты цен продукта. Форма строит поля цен по этому списку |
+| `DEFAULT_CURRENCY` | первая из `CURRENCIES` | основная валюта (крупная цена, сумма прихода) |
+| `UPLOAD_MAX_MB` | `2` | максимальный размер загружаемого фото |
+| `ICONS_DIR` | `server/public/icons` | папка встроенных иконок. Любой файл SVG/PNG/JPEG/WEBP из неё доступен в форме продукта |
+| `DEFAULT_PRODUCT_PHOTO` | `/icons/default.svg` | фото продукта, если оно не выбрано |
+| `UPLOAD_DIR` | `server/uploads` | куда сохраняются загруженные фото (в Docker — отдельный volume) |
+| `AUTH_COOKIE_NAME` | `token` | имя cookie с JWT (одинаковое для API и клиента) |
+| `JWT_SECRET`, `JWT_TTL_SECONDS` | — / 8 часов | подпись и срок жизни токена |
+| `DEMO_EMAIL`, `DEMO_PASSWORD` | пусто | демо-доступ на странице входа; если не заданы, подсказка скрыта |
+| `DEFAULT_LOCALE`, `TIME_ZONE` | `ru`, `Europe/Kyiv` | язык по умолчанию и часовой пояс |
+| `NEXT_PUBLIC_MAP_TILE_URL`, `NEXT_PUBLIC_MAP_ATTRIBUTION` | OpenStreetMap | сервер тайлов карты |
+
+Типы продуктов не зашиты в код: это данные, которые вводит пользователь (в форме есть подсказки из уже существующих типов). Названия месяцев берутся из встроенной локализации (`Intl`).
 
 ## Локальная разработка без Docker
 
@@ -258,7 +279,12 @@ erDiagram
 | `GET` | `/api/products?type=&orderId=` | список продуктов (формат как в `app.js`: `guarantee`, `price[]`, `order`) |
 | `POST` | `/api/products` | создать продукт |
 | `DELETE` | `/api/products/:id` | удалить продукт |
+| `PUT` | `/api/orders/:id` | изменить приход |
+| `PUT` | `/api/products/:id` | изменить продукт (включая фото и цены) |
 | `GET` | `/api/warehouses` | склады с координатами |
+| `GET` | `/api/settings` | валюты и основная валюта |
+| `GET` | `/api/icons` | встроенные иконки продуктов |
+| `POST` | `/api/uploads` | загрузить фото (`multipart/form-data`, поле `file`) → `{ url }` |
 
 Ошибки валидации приходят как `400 { message, errors: [{ path, message }] }`.
 

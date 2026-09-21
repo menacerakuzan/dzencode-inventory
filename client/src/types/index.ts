@@ -1,4 +1,5 @@
-export type Currency = 'USD' | 'UAH';
+/** ISO 4217 code, e.g. "UAH". Allowed currencies come from the server settings. */
+export type Currency = string;
 export type ProductStatus = 'free' | 'repair';
 
 export interface Price {
@@ -45,6 +46,17 @@ export interface User {
   name: string;
 }
 
+/** App settings configured on the server. */
+export interface Settings {
+  currencies: Currency[];
+  defaultCurrency: Currency;
+}
+
+export interface Icon {
+  name: string;
+  url: string;
+}
+
 export type Totals = Record<Currency, number>;
 
 export interface OrderSummary extends Order {
@@ -52,21 +64,5 @@ export interface OrderSummary extends Order {
   totals: Totals;
 }
 
-export interface NewOrder {
-  title: string;
-  description: string;
-  date: string;
-  warehouseId: number | null;
-}
-
-export interface NewProduct {
-  title: string;
-  serialNumber: string;
-  isNew: boolean;
-  type: string;
-  specification: string;
-  status: ProductStatus;
-  guarantee: { start: string; end: string };
-  price: Price[];
-  order: number;
-}
+export type OrderInput = Omit<Order, 'id'>;
+export type ProductInput = Omit<Product, 'id' | 'date'>;

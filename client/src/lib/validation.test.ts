@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { loginSchema, orderFormSchema, productFormSchema, type ProductFormValues } from './validation';
+import { loginSchema, makeProductFormSchema, orderFormSchema, type ProductFormValues } from './validation';
 
 /** First message per field — the one react-hook-form displays. */
 const messages = (result: { success: boolean; error?: { issues: { path: PropertyKey[]; message: string }[] } }) => {
@@ -39,19 +39,20 @@ describe('orderFormSchema', () => {
   });
 });
 
-describe('productFormSchema', () => {
+describe('makeProductFormSchema', () => {
+  const productFormSchema = makeProductFormSchema(['UAH', 'USD']);
   const valid: ProductFormValues = {
     order: '1',
     title: 'Dell P2422H',
     serialNumber: 'SN-1',
-    type: 'Monitors',
+    type: 'Мониторы',
     specification: '24" Full HD',
     status: 'free',
     condition: 'new',
     guaranteeStart: '2026-01-01',
     guaranteeEnd: '2027-01-01',
-    priceUsd: 189,
-    priceUah: 7843.5,
+    photo: null,
+    prices: { UAH: 7843.5, USD: 189 },
   };
 
   it('accepts a valid product', () => {
@@ -63,8 +64,14 @@ describe('productFormSchema', () => {
     expect(messages(result)).toEqual({ guaranteeEnd: 'guaranteeOrder' });
   });
 
-  it('rejects empty or non-positive prices and a missing order', () => {
-    const result = productFormSchema.safeParse({ ...valid, order: '', priceUsd: Number.NaN, priceUah: 0 });
-    expect(messages(result)).toEqual({ order: 'order', priceUsd: 'positive', priceUah: 'positive' });
+  it('requires a positive price in every configured currency and an order', () => {
+    const result = productFormSchema.safeParse({ ...valid, order: '', prices: { UAH: 0 } });
+    expect(messages(result)).toEqual({ order: 'order', 'prices.UAH': 'positive', 'prices.USD': 'positive' });
+  });
+
+  it('builds price fields from the given currencies', () => {
+    const eurOnly = makeProductFormSchema(['EUR']);
+    expect(eurOnly.safeParse({ ...valid, prices: { EUR: 10 } }).success).toBe(true);
+    expect(eurOnly.safeParse(valid).success).toBe(false);
   });
 });

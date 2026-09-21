@@ -2,12 +2,18 @@
 
 import { useState, type ReactNode } from 'react';
 import { Provider } from 'react-redux';
-import type { User } from '@/types';
+import type { Settings, User } from '@/types';
 import { makeStore } from './store';
 
-export default function StoreProvider({ user, children }: { user: User; children: ReactNode }) {
+interface Props {
+  user: User;
+  settings: Settings;
+  children: ReactNode;
+}
+
+export default function StoreProvider({ user, settings, children }: Props) {
   const [store] = useState(() =>
-    makeStore({ session: { user, activeTabs: null, connected: false, warehouses: [] } }),
+    makeStore({ session: { user, settings, activeTabs: null, connected: false, warehouses: [] } }),
   );
   return <Provider store={store}>{children}</Provider>;
 }

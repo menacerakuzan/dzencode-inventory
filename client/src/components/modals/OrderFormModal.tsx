@@ -11,16 +11,27 @@ import { toDateTimeLocal } from '@/lib/format';
 import { orderFormSchema, type OrderFormValues } from '@/lib/validation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectWarehouses } from '@/store/selectors';
-import { createOrder, orderSelected } from '@/store/slices/ordersSlice';
-import { orderFormToggled } from '@/store/slices/uiSlice';
+import { createOrder, orderSelected, updateOrder } from '@/store/slices/ordersSlice';
+import { orderFormClosed } from '@/store/slices/uiSlice';
+import type { Order } from '@/types';
 
-export default function OrderFormModal() {
+const toFormValues = (order: Order | undefined): OrderFormValues => ({
+  title: order?.title ?? '',
+  // API date "YYYY-MM-DD HH:mm:ss" -> datetime-local "YYYY-MM-DDTHH:mm"
+  date: order ? order.date.slice(0, 16).replace(' ', 'T') : toDateTimeLocal(new Date()),
+  warehouseId: order?.warehouseId ? String(order.warehouseId) : '',
+  description: order?.description ?? '',
+});
+
+/** Creates a new order (`id: null`) or edits an existing one. */
+export default function OrderFormModal({ id }: { id: number | null }) {
   const t = useTranslations('orderForm');
   const tc = useTranslations('common');
   const dispatch = useAppDispatch();
   const warehouses = useAppSelector(selectWarehouses);
+  const existing = useAppSelector((state) => state.orders.items.find((order) => order.id === id));
   const titleId = useId();
-  const [defaultDate] = useState(() => toDateTimeLocal(new Date()));
+  const [defaultValues] = useState(() => toFormValues(existing));
 
   const {
     register,
@@ -30,25 +41,25 @@ export default function OrderFormModal() {
   } = useForm<OrderFormValues>({
     resolver: zodResolver(orderFormSchema),
     mode: 'onTouched',
-    defaultValues: { title: '', date: defaultDate, warehouseId: '', description: '' },
+    defaultValues,
   });
 
-  const close = () => dispatch(orderFormToggled(false));
+  const close = () => dispatch(orderFormClosed());
 
   const onSubmit = handleSubmit(async (values) => {
-    const result = await dispatch(
-      createOrder({
-        title: values.title,
-        description: values.description,
-        date: values.date,
-        warehouseId: values.warehouseId ? Number(values.warehouseId) : null,
-      }),
-    );
-    if (createOrder.fulfilled.match(result)) {
-      dispatch(orderSelected(result.payload.id));
+    const order = {
+      title: values.title,
+      description: values.description,
+      date: values.date,
+      warehouseId: values.warehouseId ? Number(values.warehouseId) : null,
+    };
+    const result = id === null ? await dispatch(createOrder(order)) : await dispatch(updateOrder({ id, order }));
+
+    if (result.meta.requestStatus === 'fulfilled') {
+      if (id === null && createOrder.fulfilled.match(result)) dispatch(orderSelected(result.payload.id));
       close();
     } else {
-      setError('root', { message: tc('actionFailed', { message: result.payload ?? '' }) });
+      setError('root', { message: tc('actionFailed', { message: String(result.payload ?? '') }) });
     }
   });
 
@@ -56,7 +67,7 @@ export default function OrderFormModal() {
     <Modal titleId={titleId} onClose={close} className="form-modal">
       <form onSubmit={onSubmit} noValidate>
         <h2 id={titleId} className="form-modal__title">
-          {t('title')}
+          {t(id === null ? 'title' : 'editTitle')}
         </h2>
 
         <div className="form-modal__body">
@@ -114,7 +125,7 @@ export default function OrderFormModal() {
           </button>
           <button type="submit" className="btn btn-success form-modal__submit" disabled={isSubmitting}>
             {isSubmitting && <span className="spinner-border spinner-border-sm me-2" aria-hidden />}
-            {t('submit')}
+            {t(id === null ? 'submit' : 'save')}
           </button>
         </div>
       </form>
