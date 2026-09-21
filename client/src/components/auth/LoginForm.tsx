@@ -31,7 +31,8 @@ export default function LoginForm({ next, demo }: { next?: string; demo?: DemoCr
     formState: { errors, isSubmitting },
   } = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
-    mode: 'onTouched',
+    mode: 'onSubmit',
+    reValidateMode: 'onChange',
     defaultValues: { email: '', password: '' },
   });
 

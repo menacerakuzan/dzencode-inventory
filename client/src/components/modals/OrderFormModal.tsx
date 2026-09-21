@@ -40,7 +40,8 @@ export default function OrderFormModal({ id }: { id: number | null }) {
     formState: { errors, isSubmitting },
   } = useForm<OrderFormValues>({
     resolver: zodResolver(orderFormSchema),
-    mode: 'onTouched',
+    mode: 'onSubmit',
+    reValidateMode: 'onChange',
     defaultValues,
   });
 
