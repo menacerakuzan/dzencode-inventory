@@ -1,0 +1,301 @@
+# Inventory — SPA «Orders & Products»
+
+Тестовое задание dZENcode (уровень **Junior+**). SPA для учёта приходов (Orders) и продуктов (Products) на складах: список приходов с раскрывающейся панелью деталей, удаление через попап, каталог продуктов с фильтрами, часы и счётчик активных вкладок в реальном времени, статистика с графиками и картой складов.
+
+![Приходы](docs/screenshots/order-details.png)
+
+**Демо-доступ:** `admin@inventory.local` / `Admin123!` (на странице входа есть кнопка «Подставить»).
+
+## Содержание
+
+- [Быстрый старт (Docker)](#быстрый-старт-docker)
+- [Функциональность](#функциональность)
+- [Соответствие ТЗ](#соответствие-тз)
+- [Архитектура и стек](#архитектура-и-стек)
+- [Локальная разработка без Docker](#локальная-разработка-без-docker)
+- [Тесты и проверки](#тесты-и-проверки)
+- [База данных и MySQL Workbench](#база-данных-и-mysql-workbench)
+- [REST API и WebSocket](#rest-api-и-websocket)
+- [Деплой на VDS](#деплой-на-vds)
+- [Git-ветвление](#git-ветвление)
+
+## Быстрый старт (Docker)
+
+Нужны только **Docker** и **Docker Compose v2**.
+
+```bash
+git clone <url-репозитория> dzencode-inventory
+cd dzencode-inventory
+cp .env.example .env        # затем впишите свой JWT_SECRET (например, `openssl rand -hex 32`)
+docker compose up -d --build
+```
+
+Откройте **http://localhost:8080** и войдите демо-пользователем.
+
+При первом запуске MySQL создаёт схему и демо-данные из `db/schema.sql` и `db/seed.sql`: 4 склада, 6 приходов, 25 продуктов. Первая сборка занимает 2–4 минуты.
+
+| Команда | Что делает |
+|---|---|
+| `docker compose ps` | статус контейнеров (`db`, `server`, `client`, `nginx`) |
+| `docker compose logs -f server` | логи API |
+| `docker compose down` | остановить |
+| `docker compose down -v` | остановить и **удалить данные БД** (при следующем старте сиды применятся заново) |
+
+Порты меняются в `.env`: `APP_PORT` — приложение (по умолчанию 8080), `DB_PORT` — MySQL для Workbench (по умолчанию 3307, доступен только с `127.0.0.1`).
+
+## Функциональность
+
+**Верхнее меню (TopMenu)**
+- Дата, день недели и время, обновляются каждую секунду.
+- Счётчик **активных вкладок приложения** через Socket.io. Откройте приложение в нескольких вкладках или браузерах, и число изменится везде сразу. Зелёный индикатор показывает, что соединение есть.
+- Поиск по названию прихода, названию и серийному номеру продукта.
+- Переключатель языка RU / UA / EN.
+
+**Навигация (Navigation Menu)**
+- Ссылки на «Приход», «Продукты», «Статистика».
+- Анимированное подчёркивание активного пункта.
+- В профиле (шестерёнка на аватаре) — выход.
+
+**Приходы (Orders)**
+- В каждом приходе видно: название, количество продуктов, дату создания в двух форматах (`06 / 04` и `06 / Апр / 2017`), сумму прихода в двух валютах (USD и UAH), кнопку удаления.
+- Клик по приходу открывает панель рядом, а список сжимается до компактного вида. Панель закрывается крестиком. В панели:
+  - склад;
+  - описание;
+  - продукты прихода;
+  - «Добавить продукт».
+- Открытый приход сохраняется в URL (`/orders?order=1`): ссылкой можно поделиться, после перезагрузки он откроется снова.
+- Кнопка «+» открывает форму создания прихода с валидацией.
+- Удаление через попап по макету. Попап показывает продукты, которые будут удалены вместе с приходом (каскадно).
+
+**Продукты (Products)**
+- Все продукты. У каждого: статус, название, серийный номер, гарантия «с … по …», состояние (новый / Б/У), цена в двух валютах, тип, спецификация, название прихода (ссылка на приход), дата.
+- Фильтр по **типу** (select) и дополнительно по спецификации. Выбранные фильтры запоминаются в `localStorage`.
+- Добавление продукта через форму с валидацией. Удаление через тот же попап.
+
+**Статистика**
+- Карточки с итогами.
+- Графики «продукты по типам» и «сумма приходов».
+- Карта складов (Leaflet + OpenStreetMap).
+
+**Синхронизация между вкладками.** Создание и удаление приходов и продуктов рассылается через Socket.io. Все открытые вкладки обновляются без перезагрузки.
+
+**Адаптивность.** Вёрстка работает от 360px до широких экранов:
+- на телефоне сайдбар становится горизонтальным меню;
+- строки продуктов превращаются в карточки;
+- открытый приход показывается над списком.
+
+<details>
+<summary>Скриншоты</summary>
+
+| | |
+|---|---|
+| ![Приходы](docs/screenshots/orders.png) | ![Удаление](docs/screenshots/delete-modal.png) |
+| ![Продукты](docs/screenshots/products.png) | ![Статистика](docs/screenshots/stats.png) |
+| ![Валидация](docs/screenshots/form-validation.png) | ![Мобильная версия](docs/screenshots/mobile.png) |
+
+</details>
+
+## Соответствие ТЗ
+
+### Обязательные технологии
+
+| Требование | Реализация |
+|---|---|
+| Глобальное состояние | **Redux Toolkit** — `client/src/store`: слайсы, мемоизированные селекторы, async thunks, listener middleware |
+| Компонентный подход | `client/src/components/*` — layout, orders, products, modals, stats, ui |
+| Роутинг | Next.js App Router: `/orders`, `/products`, `/stats`, `/login` |
+| Анимации | библиотека `motion`: переход между роутами (`app/(dashboard)/template.tsx`), раскрытие прихода (layout-анимации), панели, модалки, удаление строк, подчёркивание меню, счётчики, уведомления. Учитывается `prefers-reduced-motion` |
+| ES6+ | стрелочные функции, spread, деструктуризация, шаблонные строки, модули |
+| Git | история с ветками `feature/*`, см. [Git-ветвление](#git-ветвление) |
+| WebSocket | **Socket.io**: счётчик вкладок и real-time синхронизация (`server/src/realtime.ts`, `client/src/hooks/useRealtime.ts`) |
+| HTML/CSS по макетам | SCSS по **БЭМ** (`client/src/styles/blocks/*`, один файл на блок) + **Bootstrap 5** (сетка форм, form-controls, кнопки, утилиты) + Bootstrap Icons |
+| REST (Axios/Fetch) | **Axios** на клиенте (`lib/api.ts`), **fetch** при SSR (`lib/serverApi.ts`) |
+| Валидация форм | **react-hook-form + zod** на клиенте, **zod** на сервере (ошибки полей возвращаются в ответе 400) |
+| Docker | `docker-compose.yml`: MySQL, API, Next.js, nginx |
+| Схема БД | `db/schema.sql`, см. [раздел про БД](#база-данных-и-mysql-workbench) |
+
+### Уровень Junior+
+
+| Требование | Реализация |
+|---|---|
+| **TypeScript** | весь код клиента и сервера, `strict` |
+| **SSR (Next.js)** | Next.js 16. Страницы — серверные компоненты: данные загружаются на сервере с JWT пользователя, HTML приходит уже со списками, затем гидрируются в Redux (`store/StoreHydrator.tsx`) |
+| **Unit-тесты** | Vitest + Testing Library: 27 тестов клиента (форматирование, валидация, Redux, компоненты), 21 тест сервера (API через supertest, счётчик сессий на настоящем Socket.io) |
+| **i18n** | `next-intl`, словари `client/messages/{ru,uk,en}.json`, ICU-плюрализация («1 продукт / 2 продукта / 5 продуктов»). Язык хранится в cookie и работает при SSR |
+| **JWT** | вход выдаёт JWT в **httpOnly**-cookie (недоступна из JS, защита от XSS). API проверяет подпись и срок, также принимает `Authorization: Bearer`. `proxy.ts` не пускает на страницы без токена |
+| **Web Storage** | фильтры продуктов сохраняются в `localStorage` через listener middleware Redux (`lib/storage.ts`) |
+| **Lazy Loading** | `next/dynamic`: модалки и формы, графики (recharts), карта (leaflet) грузятся отдельными чанками только по требованию; `loading.tsx` на уровне роутов |
+| **Charts** | Recharts: продукты по типам, суммы приходов (страница «Статистика») |
+| **Maps** | Leaflet + OpenStreetMap: склады с количеством и суммой приходов |
+
+## Архитектура и стек
+
+```
+Браузер ──► nginx :8080 ──┬── /            ──► client  (Next.js 16, SSR)  ──┐ SSR-запросы с cookie
+                          ├── /api/*       ──► server  (Express 5, REST)  ◄─┘
+                          └── /socket.io/* ──► server  (Socket.io)
+                                                 │
+                                                 └──► db (MySQL 8.4)
+```
+
+- **client:** Next.js 16 (App Router), React 19, TypeScript, Redux Toolkit, next-intl, Bootstrap 5 + SCSS (БЭМ), motion, react-hook-form + zod, Axios, socket.io-client, Recharts, react-leaflet, Vitest.
+- **server:** Node.js, Express 5, Socket.io 4, mysql2, jsonwebtoken, bcryptjs, zod, helmet, Vitest + supertest. Зависимости передаются в `createApp()` (репозитории, шина событий), поэтому API тестируется без базы.
+- **nginx:** единая точка входа. Фронт, API и WebSocket на одном домене, поэтому не нужны CORS и third-party cookies.
+
+```
+.
+├── client/                 Next.js-приложение
+│   ├── messages/           словари i18n (ru, uk, en)
+│   ├── public/products/    иконки продуктов
+│   └── src/
+│       ├── app/            роуты: (dashboard)/orders|products|stats, login
+│       ├── components/     layout, orders, products, modals, stats, ui, auth
+│       ├── hooks/          useRealtime (Socket.io), useNow (часы)
+│       ├── i18n/           конфиг next-intl
+│       ├── lib/            api, serverApi, format, validation, storage
+│       ├── store/          Redux: slices, selectors, StoreProvider, StoreHydrator
+│       ├── styles/         SCSS: abstracts, base, blocks (БЭМ)
+│       └── proxy.ts        защита страниц (бывший middleware)
+├── server/
+│   ├── src/                app, http (routes, auth, schemas, errors), db, realtime
+│   └── test/               тесты API и WebSocket
+├── db/                     schema.sql, seed.sql
+├── nginx/nginx.conf
+├── docs/screenshots/
+└── docker-compose.yml
+```
+
+## Локальная разработка без Docker
+
+Нужен Node.js 20+ (проверено на 24 и 26). MySQL удобнее всего поднять из compose.
+
+```bash
+npm run install:all            # зависимости server и client
+cp .env.example .env           # для docker compose
+npm run dev:db                 # только MySQL на 127.0.0.1:3307
+cp server/.env.example server/.env
+npm run dev:server             # API + Socket.io на http://localhost:4000
+npm run dev:client             # в другом терминале: Next.js на http://localhost:3000
+```
+
+В dev-режиме Next.js проксирует `/api/*` на `localhost:4000` (rewrites), а Socket.io подключается к `NEXT_PUBLIC_WS_URL` из `client/.env.development`.
+
+## Тесты и проверки
+
+```bash
+npm test             # unit-тесты server + client
+npm run typecheck    # tsc --noEmit для обеих частей
+npm run lint         # ESLint (eslint-config-next)
+npm run check        # всё вместе
+```
+
+## База данных и MySQL Workbench
+
+Схема: `db/schema.sql` (DDL MySQL 8). Демо-данные: `db/seed.sql`.
+
+```mermaid
+erDiagram
+  warehouses ||--o{ orders : "принимает"
+  orders ||--o{ products : "содержит (ON DELETE CASCADE)"
+  products ||--|{ product_prices : "цены в валютах"
+  users {
+    int id PK
+    varchar email UK
+    varchar password_hash
+    varchar name
+  }
+  warehouses {
+    int id PK
+    varchar name
+    varchar city
+    varchar address
+    decimal lat
+    decimal lng
+  }
+  orders {
+    int id PK
+    varchar title
+    text description
+    datetime date
+    int warehouse_id FK
+  }
+  products {
+    int id PK
+    varchar serial_number
+    tinyint is_new
+    varchar photo
+    varchar title
+    varchar type
+    varchar specification
+    enum status
+    datetime guarantee_start
+    datetime guarantee_end
+    int order_id FK
+    datetime date
+  }
+  product_prices {
+    int id PK
+    int product_id FK
+    decimal value
+    char symbol
+    tinyint is_default
+  }
+```
+
+Цены вынесены в отдельную таблицу `product_prices`, как массив `price` в `app.js`. Так поддерживается любое число валют, а одна из них помечается как основная (`is_default`).
+
+**Как открыть в MySQL Workbench:**
+1. ER-диаграмма: `File → Import → Reverse Engineer MySQL Create Script…` → выбрать `db/schema.sql`. Workbench построит модель, её можно сохранить как `.mwb`.
+2. Живая база из Docker: новое подключение `127.0.0.1:3307`, пользователь `inventory` / `inventory`, схема `inventory`.
+
+## REST API и WebSocket
+
+Все эндпоинты, кроме `/api/health` и `/api/auth/login`, требуют JWT (cookie `token` или `Authorization: Bearer <jwt>`).
+
+| Метод | Путь | Описание |
+|---|---|---|
+| `GET` | `/api/health` | проверка работоспособности |
+| `POST` | `/api/auth/login` | `{ email, password }` → устанавливает httpOnly-cookie с JWT, возвращает `{ user }` |
+| `POST` | `/api/auth/logout` | удаляет cookie |
+| `GET` | `/api/auth/me` | текущий пользователь |
+| `GET` | `/api/orders` | список приходов |
+| `POST` | `/api/orders` | создать: `{ title, description?, date, warehouseId? }` |
+| `DELETE` | `/api/orders/:id` | удалить приход вместе с его продуктами |
+| `GET` | `/api/products?type=&orderId=` | список продуктов (формат как в `app.js`: `guarantee`, `price[]`, `order`) |
+| `POST` | `/api/products` | создать продукт |
+| `DELETE` | `/api/products/:id` | удалить продукт |
+| `GET` | `/api/warehouses` | склады с координатами |
+
+Ошибки валидации приходят как `400 { message, errors: [{ path, message }] }`.
+
+**События Socket.io (сервер → клиенты):**
+- `sessions:count`: количество подключённых вкладок;
+- `order:created`, `order:deleted`, `product:created`, `product:deleted`: синхронизация данных между вкладками.
+
+## Деплой на VDS
+
+Подойдёт любой VDS с Ubuntu 22.04+ и 1 ГБ RAM.
+
+```bash
+# 1. Docker
+curl -fsSL https://get.docker.com | sh
+
+# 2. Проект
+git clone <url-репозитория> /opt/inventory && cd /opt/inventory
+cp .env.example .env
+#   JWT_SECRET=<openssl rand -hex 32>
+#   APP_PORT=80
+#   PUBLIC_URL=http://<ip-или-домен>
+docker compose up -d --build
+```
+
+Для HTTPS поставьте перед приложением обратный прокси с сертификатом, например Caddy (`reverse_proxy localhost:8080`) или nginx + certbot. Затем в `.env` укажите `PUBLIC_URL=https://домен` и `COOKIE_SECURE=true` и выполните `docker compose up -d`.
+
+## Git-ветвление
+
+Работа велась по упрощённому git-flow:
+- `main` — стабильная версия;
+- `develop` — интеграционная ветка;
+- `feature/*` — отдельные задачи: схема БД, API, realtime, клиентская основа, страницы Orders и Products, модалки и формы, i18n, статистика, Docker, документация.
+
+Каждая фича вливается в `develop` через merge-коммит (`--no-ff`), поэтому ветки видны в истории (`git log --graph`). Релиз — merge `develop` → `main`.
