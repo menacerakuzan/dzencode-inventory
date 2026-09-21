@@ -1,0 +1,211 @@
+@use '../abstracts/tokens' as *;
+
+.products {
+  &__scroller {
+    overflow-x: auto;
+    padding-bottom: 16px;
+    scrollbar-color: #cfd8dc transparent;
+
+    &::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      border-radius: 4px;
+      background: #cfd8dc;
+    }
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 1480px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+}
+
+.products-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 28px;
+  margin-left: clamp(0px, 2vw, 24px);
+
+  &__field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+  }
+
+  &__label {
+    color: $muted-dark;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  &__select {
+    width: clamp(160px, 16vw, 260px);
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  &__reset {
+    color: $green-dark;
+    font-size: 0.8rem;
+    text-decoration: none;
+  }
+
+  @include down($bp-md) {
+    flex: 1;
+    min-width: 0;
+    margin-left: 0;
+
+    &__field {
+      flex: 1 1 100%;
+      min-width: 0;
+    }
+
+    &__label {
+      min-width: 92px;
+    }
+
+    &__select {
+      flex: 1;
+      min-width: 0;
+      width: auto;
+    }
+  }
+}
+
+.product-row {
+  display: grid;
+  grid-template-columns: 8px 48px 300px 100px 170px 80px 150px 220px 250px 110px 32px;
+  align-items: center;
+  gap: 22px;
+  min-height: 64px;
+  padding: 10px 16px 10px 26px;
+  border: 1px solid $border;
+  border-radius: $radius;
+  background: $surface;
+  font-size: 0.85rem;
+  transition: box-shadow 0.25s;
+
+  &:hover {
+    box-shadow: $shadow-md;
+  }
+
+  &__photo {
+    width: 48px;
+    height: 36px;
+    object-fit: contain;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__title {
+    @include underline-link;
+    overflow: hidden;
+    align-self: flex-start;
+    max-width: 100%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__serial,
+  &__muted,
+  &__spec {
+    color: $muted-dark;
+    font-size: 0.75rem;
+  }
+
+  &__guarantee {
+    display: flex;
+    flex-direction: column;
+    white-space: nowrap;
+  }
+
+  &__type {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__type-name {
+    font-weight: 600;
+  }
+
+  &__spec {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__order {
+    min-width: 0;
+    font-size: 0.95rem;
+    line-height: 1.35;
+  }
+
+  &__order-link {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  // Phones: the table row turns into a card, details stack under the title.
+  @include down($bp-md) {
+    grid-template-columns: 8px 48px minmax(0, 1fr) 32px;
+    align-items: start;
+    gap: 6px 14px;
+    padding: 14px 10px 14px 14px;
+
+    > * {
+      grid-column: 3;
+    }
+
+    .status-dot {
+      grid-column: 1;
+      grid-row: 1;
+      margin-top: 8px;
+    }
+
+    &__photo {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+    }
+
+    &__info {
+      grid-row: 1;
+    }
+
+    &__delete {
+      grid-column: 4;
+      grid-row: 1;
+    }
+
+    &__guarantee {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 0 12px;
+    }
+
+    .date-stack {
+      align-items: flex-start;
+    }
+  }
+}
+
+.products__list {
+  @include down($bp-md) {
+    min-width: 0;
+  }
+}
