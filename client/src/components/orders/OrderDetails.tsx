@@ -1,6 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion } from 'motion/react';
+import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { useEffect, useRef } from 'react';
 import ProductItem from '@/components/products/ProductItem';
@@ -11,6 +12,12 @@ import { deleteRequested, productFormOpened } from '@/store/slices/uiSlice';
 import type { OrderSummary } from '@/types';
 
 const EMPTY: never[] = [];
+
+// Lazy loading: leaflet is downloaded only when an order with a warehouse is opened.
+const WarehouseMap = dynamic(() => import('./WarehouseMap'), {
+  ssr: false,
+  loading: () => <div className="warehouse-map warehouse-map--loading" aria-hidden />,
+});
 
 export default function OrderDetails({ order }: { order: OrderSummary }) {
   const t = useTranslations('orders');
@@ -58,6 +65,7 @@ export default function OrderDetails({ order }: { order: OrderSummary }) {
             {order.description && <span className="order-details__description">{order.description}</span>}
           </p>
         )}
+        {warehouse && <WarehouseMap key={warehouse.id} warehouse={warehouse} />}
         <button type="button" className="add-link" onClick={() => dispatch(productFormOpened(order.id))}>
           <span className="add-link__icon" aria-hidden>
             <i className="bi bi-plus" />

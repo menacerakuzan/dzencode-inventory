@@ -50,6 +50,12 @@ export const selectProductTypes = createSelector([selectProducts], (products) =>
   [...new Set(products.map((p) => p.type))].sort(),
 );
 
+export const selectTypeCounts = createSelector([selectProducts], (products) => {
+  const counts = new Map<string, number>();
+  for (const product of products) counts.set(product.type, (counts.get(product.type) ?? 0) + 1);
+  return [...counts].map(([type, count]) => ({ type, count })).sort((a, b) => b.count - a.count);
+});
+
 export const selectFilteredProducts = createSelector(
   [selectProducts, selectTypeFilter, selectSearch],
   (products, type, search) => {

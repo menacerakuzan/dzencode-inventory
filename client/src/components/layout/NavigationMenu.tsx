@@ -10,7 +10,6 @@ import ProfileCard from './ProfileCard';
 const ITEMS = [
   { href: '/orders', key: 'orders', icon: 'bi-box-seam' },
   { href: '/products', key: 'products', icon: 'bi-display' },
-  { href: '/stats', key: 'stats', icon: 'bi-bar-chart-line' },
 ] as const;
 
 export default function NavigationMenu() {
