@@ -1,26 +1,10 @@
 @use '../abstracts/tokens' as *;
 
 .products {
-  &__scroller {
-    overflow-x: auto;
-    padding-bottom: 16px;
-    scrollbar-color: #cfd8dc transparent;
-
-    &::-webkit-scrollbar {
-      height: 8px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      border-radius: 4px;
-      background: #cfd8dc;
-    }
-  }
-
   &__list {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    min-width: 1480px;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -81,18 +65,25 @@
   }
 }
 
+// Fluid columns: every text cell may shrink (min-width: 0) and truncates instead of overflowing.
 .product-row {
   display: grid;
-  grid-template-columns: 8px 48px 300px 100px 170px 80px 150px 220px 250px 110px 32px;
+  grid-template-columns:
+    8px 48px minmax(0, 2.2fr) 96px 136px 128px minmax(0, 1.3fr)
+    minmax(0, 1.5fr) 100px 32px;
   align-items: center;
-  gap: 22px;
+  gap: 16px;
   min-height: 64px;
-  padding: 10px 16px 10px 26px;
+  padding: 10px 12px 10px 22px;
   border: 1px solid $border;
   border-radius: $radius;
   background: $surface;
   font-size: 0.85rem;
   transition: box-shadow 0.25s;
+
+  > * {
+    min-width: 0;
+  }
 
   &:hover {
     box-shadow: $shadow-md;
@@ -104,24 +95,31 @@
     object-fit: contain;
   }
 
-  &__info {
+  &__info,
+  &__state,
+  &__type {
     display: flex;
     flex-direction: column;
-    min-width: 0;
   }
 
-  &__title {
-    @include underline-link;
+  &__title,
+  &__spec,
+  &__type-name {
     overflow: hidden;
-    align-self: flex-start;
-    max-width: 100%;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
+  &__title {
+    @include underline-link;
+    align-self: flex-start;
+    max-width: 100%;
+  }
+
   &__serial,
   &__muted,
-  &__spec {
+  &__spec,
+  &__condition {
     color: $muted-dark;
     font-size: 0.75rem;
   }
@@ -132,25 +130,11 @@
     white-space: nowrap;
   }
 
-  &__type {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-  }
-
   &__type-name {
     font-weight: 600;
   }
 
-  &__spec {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
   &__order {
-    min-width: 0;
-    font-size: 0.95rem;
     line-height: 1.35;
   }
 
@@ -161,8 +145,20 @@
     -webkit-line-clamp: 2;
   }
 
-  // Phones: the table row turns into a card, details stack under the title.
-  @include down($bp-md) {
+  // The product date is optional in the spec: hidden on medium screens to keep the row readable.
+  @include down($bp-xxl) {
+    grid-template-columns:
+      8px 48px minmax(0, 2fr) 96px 136px 128px minmax(0, 1.2fr)
+      minmax(0, 1.4fr) 32px;
+    gap: 14px;
+
+    &__date {
+      display: none;
+    }
+  }
+
+  // Tablets and phones: the row turns into a card, details stack under the title.
+  @include down($bp-lg) {
     grid-template-columns: 8px 48px minmax(0, 1fr) 32px;
     align-items: start;
     gap: 6px 14px;
@@ -192,20 +188,16 @@
       grid-row: 1;
     }
 
+    &__state,
     &__guarantee {
       flex-direction: row;
       flex-wrap: wrap;
       gap: 0 12px;
     }
 
-    .date-stack {
+    &__date {
+      display: flex;
       align-items: flex-start;
     }
-  }
-}
-
-.products__list {
-  @include down($bp-md) {
-    min-width: 0;
   }
 }
