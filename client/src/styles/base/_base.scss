@@ -1,0 +1,62 @@
+@use '../abstracts/tokens' as *;
+
+:root {
+  --bs-body-font-family: var(--font-main), 'Montserrat', system-ui, sans-serif;
+  --bs-body-color: #{$ink};
+  --bs-body-bg: #{$bg};
+  --bs-success: #{$green-deep};
+  --bs-success-rgb: 90, 154, 36;
+  --bs-link-color: #{$green-dark};
+  --bs-link-hover-color: #{$green-deep};
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  background: $bg;
+  color: $ink;
+  font-family: var(--bs-body-font-family);
+  -webkit-font-smoothing: antialiased;
+
+  &.is-modal-open {
+    overflow: hidden;
+  }
+}
+
+:focus-visible {
+  @include focus-ring;
+}
+
+.btn-success {
+  --bs-btn-bg: #{$green-deep};
+  --bs-btn-border-color: #{$green-deep};
+  --bs-btn-hover-bg: #{$green-dark};
+  --bs-btn-hover-border-color: #{$green-dark};
+  --bs-btn-active-bg: #{$green-dark};
+  --bs-btn-disabled-bg: #{$green-deep};
+  --bs-btn-disabled-border-color: #{$green-deep};
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.form-control,
+.form-select {
+  border-color: $border;
+
+  &:focus {
+    border-color: $green;
+    box-shadow: 0 0 0 0.2rem rgba($green, 0.25);
+  }
+}
+
+.form-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: $muted-dark;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.35rem;
+}
