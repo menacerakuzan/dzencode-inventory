@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { productsApi } from '@/lib/api';
+import { ordersApi, productsApi } from '@/lib/api';
 import { makeOrder, makeProduct } from '@/test/fixtures';
 import {
   selectFilteredProducts,
@@ -7,7 +7,7 @@ import {
   selectSpecifications,
   selectVisibleOrders,
 } from './selectors';
-import { deleteOrder, orderRemoved, orderSelected, ordersHydrated, orderUpserted } from './slices/ordersSlice';
+import { createOrder, deleteOrder, orderSelected, ordersHydrated } from './slices/ordersSlice';
 import {
   deleteProduct,
   productsHydrated,
@@ -36,14 +36,15 @@ function seededStore() {
 }
 
 describe('orders', () => {
-  it('keeps orders sorted by date (newest first) and upserts real-time events idempotently', () => {
+  it('keeps orders sorted by date, newest first, including created ones', async () => {
     const store = seededStore();
     expect(store.getState().orders.items.map((o) => o.id)).toEqual([2, 1]);
 
     const created = makeOrder({ id: 3, title: 'Phones', date: '2026-05-01 10:00:00' });
-    store.dispatch(orderUpserted(created));
-    store.dispatch(orderUpserted(created));
+    const create = vi.spyOn(ordersApi, 'create').mockResolvedValueOnce(created);
+    await store.dispatch(createOrder({ title: 'Phones', description: '', date: created.date, warehouseId: null }));
     expect(store.getState().orders.items.map((o) => o.id)).toEqual([3, 2, 1]);
+    create.mockRestore();
   });
 
   it('computes product count and totals per order', () => {
@@ -55,21 +56,12 @@ describe('orders', () => {
   it('removes the products of a deleted order and clears the selection', () => {
     const store = seededStore();
     store.dispatch(orderSelected(1));
-    store.dispatch(orderRemoved(1));
+    store.dispatch(deleteOrder.fulfilled(1, 'request-id', 1));
 
     const state = store.getState();
+    expect(state.orders.items.map((o) => o.id)).toEqual([2]);
     expect(state.orders.selectedId).toBeNull();
     expect(state.products.items.map((p) => p.id)).toEqual([3]);
-  });
-
-  it('cascades deleteOrder.fulfilled and shows a toast', () => {
-    const store = seededStore();
-    store.dispatch(deleteOrder.fulfilled(2, 'request-id', 2));
-
-    const state = store.getState();
-    expect(state.orders.items.map((o) => o.id)).toEqual([1]);
-    expect(state.products.items.every((p) => p.order !== 2)).toBe(true);
-    expect(state.ui.toasts.at(-1)).toMatchObject({ kind: 'success', messageKey: 'orderDeleted' });
   });
 
   it('filters orders by the search query', () => {
@@ -105,7 +97,7 @@ describe('products', () => {
     });
   });
 
-  it('deletes a product through the API and reports failures as an error toast', async () => {
+  it('deletes a product through the API and keeps it when the request fails', async () => {
     const store = seededStore();
     const remove = vi.spyOn(productsApi, 'remove');
 
@@ -114,12 +106,9 @@ describe('products', () => {
     expect(store.getState().products.items.map((p) => p.id)).toEqual([2, 3]);
 
     remove.mockRejectedValueOnce(new Error('Network Error'));
-    await store.dispatch(deleteProduct(2));
+    const failed = await store.dispatch(deleteProduct(2));
+    expect(failed.payload).toBe('Network Error');
     expect(store.getState().products.items.map((p) => p.id)).toEqual([2, 3]);
-    expect(store.getState().ui.toasts.at(-1)).toMatchObject({
-      kind: 'error',
-      values: { message: 'Network Error' },
-    });
 
     remove.mockRestore();
   });

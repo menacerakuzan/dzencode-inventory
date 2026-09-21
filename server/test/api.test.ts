@@ -1,13 +1,12 @@
 import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { createApp } from '../src/app.js';
-import { createMemoryRepositories, createRecordingEventBus, DEMO_USER } from './memoryRepositories.js';
+import { createMemoryRepositories, DEMO_USER } from './memoryRepositories.js';
 
 function setup() {
   const repos = createMemoryRepositories();
-  const events = createRecordingEventBus();
-  const app = createApp({ repos, events, corsOrigins: ['http://localhost:3000'] });
-  return { app, repos, events };
+  const app = createApp({ repos, corsOrigins: ['http://localhost:3000'] });
+  return { app, repos };
 }
 
 async function login(app: ReturnType<typeof setup>['app']): Promise<string> {
@@ -95,20 +94,18 @@ describe('orders', () => {
     expect(res.body.errors.map((e: { path: string }) => e.path)).toEqual(['title', 'date']);
   });
 
-  it('creates an order, normalizes the date and emits an event', async () => {
+  it('creates an order and normalizes the date', async () => {
     const res = await request(ctx.app)
       .post('/api/orders')
       .set('Cookie', cookie)
       .send({ title: 'New order', date: '2026-09-21T10:30', warehouseId: 1 });
     expect(res.status).toBe(201);
     expect(res.body).toMatchObject({ title: 'New order', description: '', date: '2026-09-21 10:30:00' });
-    expect(ctx.events.events).toEqual([['order:created', res.body]]);
   });
 
   it('deletes an order and returns 404 for unknown ids', async () => {
     const del = await request(ctx.app).delete('/api/orders/1').set('Cookie', cookie);
     expect(del.status).toBe(204);
-    expect(ctx.events.events).toEqual([['order:deleted', { id: 1 }]]);
 
     const again = await request(ctx.app).delete('/api/orders/1').set('Cookie', cookie);
     expect(again.status).toBe(404);
@@ -153,7 +150,6 @@ describe('products', () => {
     const res = await request(ctx.app).post('/api/products').set('Cookie', cookie).send(validProduct);
     expect(res.status).toBe(201);
     expect(res.body.guarantee).toEqual({ start: '2026-01-01 00:00:00', end: '2027-01-01 00:00:00' });
-    expect(ctx.events.events[0]?.[0]).toBe('product:created');
   });
 
   it('rejects guarantee end before start', async () => {

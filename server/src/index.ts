@@ -3,23 +3,18 @@ import { Server } from 'socket.io';
 import { createApp } from './app.js';
 import { config } from './config.js';
 import { createMysqlRepositories, createPool, waitForDatabase } from './db/mysqlRepositories.js';
-import { createSocketEventBus, registerSessionCounter } from './realtime.js';
+import { registerSessionCounter } from './realtime.js';
 
 const pool = createPool(config.db);
 await waitForDatabase(pool);
 
-const io = new Server({
+const app = createApp({ repos: createMysqlRepositories(pool), corsOrigins: config.corsOrigins });
+const httpServer = createServer(app);
+
+const io = new Server(httpServer, {
   cors: { origin: config.corsOrigins, credentials: true },
 });
 registerSessionCounter(io);
-
-const app = createApp({
-  repos: createMysqlRepositories(pool),
-  events: createSocketEventBus(io),
-  corsOrigins: config.corsOrigins,
-});
-const httpServer = createServer(app);
-io.attach(httpServer);
 
 httpServer.listen(config.port, () => {
   console.log(`API and Socket.io server listening on http://localhost:${config.port}`);

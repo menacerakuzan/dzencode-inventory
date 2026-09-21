@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useEffect, useId, useState } from 'react';
+import { useId, useState } from 'react';
 import ProductItem from '@/components/products/ProductItem';
 import Modal from '@/components/ui/Modal';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -12,9 +12,11 @@ import { deleteDismissed, type DeleteTarget } from '@/store/slices/uiSlice';
 
 export default function ConfirmDeleteModal({ target }: { target: DeleteTarget }) {
   const t = useTranslations('deleteModal');
+  const tc = useTranslations('common');
   const dispatch = useAppDispatch();
   const titleId = useId();
   const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const order = useAppSelector((state) =>
     target.kind === 'order' ? state.orders.items.find((o) => o.id === target.id) : undefined,
@@ -24,19 +26,21 @@ export default function ConfirmDeleteModal({ target }: { target: DeleteTarget })
   );
   const orderProducts = useAppSelector(selectProductsByOrderId).get(target.id);
   const products = target.kind === 'order' ? (orderProducts ?? []) : product ? [product] : [];
-  const exists = Boolean(order ?? product);
 
   const close = () => dispatch(deleteDismissed());
 
-  // The entity may be deleted from another tab while the dialog is open.
-  useEffect(() => {
-    if (!exists && !pending) dispatch(deleteDismissed());
-  }, [exists, pending, dispatch]);
-
   const confirm = async () => {
     setPending(true);
-    await dispatch(target.kind === 'order' ? deleteOrder(target.id) : deleteProduct(target.id));
-    dispatch(deleteDismissed());
+    setError(null);
+    const result =
+      target.kind === 'order' ? await dispatch(deleteOrder(target.id)) : await dispatch(deleteProduct(target.id));
+    setPending(false);
+
+    if (result.meta.requestStatus === 'fulfilled') {
+      close();
+    } else {
+      setError(tc('actionFailed', { message: String(result.payload ?? '') }));
+    }
   };
 
   return (
@@ -57,6 +61,11 @@ export default function ConfirmDeleteModal({ target }: { target: DeleteTarget })
       )}
       {order && products.length > 0 && (
         <p className="confirm-modal__hint">{t('orderProducts', { count: products.length })}</p>
+      )}
+      {error && (
+        <p className="confirm-modal__error" role="alert">
+          {error}
+        </p>
       )}
 
       <div className="confirm-modal__footer">

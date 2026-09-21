@@ -72,14 +72,3 @@ export interface Repositories {
     list(): Promise<Warehouse[]>;
   };
 }
-
-export interface InventoryEvents {
-  'order:created': Order;
-  'order:deleted': { id: number };
-  'product:created': Product;
-  'product:deleted': { id: number };
-}
-
-export interface EventBus {
-  emit<K extends keyof InventoryEvents>(event: K, payload: InventoryEvents[K]): void;
-}

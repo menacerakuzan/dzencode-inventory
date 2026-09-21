@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import type { EventBus, InventoryEvents, Order, Product, Repositories } from '../src/types.js';
+import type { Order, Product, Repositories } from '../src/types.js';
 
 export const DEMO_USER = { id: 1, email: 'admin@inventory.local', name: 'Admin', password: 'Admin123!' };
 
@@ -70,16 +70,6 @@ export function createMemoryRepositories(): Repositories & { data: { orders: Ord
     },
     warehouses: {
       list: async () => [{ id: 1, name: 'Main', city: 'Odesa', address: 'Street 1', lat: 46.48, lng: 30.72 }],
-    },
-  };
-}
-
-export function createRecordingEventBus(): EventBus & { events: Array<[keyof InventoryEvents, unknown]> } {
-  const events: Array<[keyof InventoryEvents, unknown]> = [];
-  return {
-    events,
-    emit: (event, payload) => {
-      events.push([event, payload]);
     },
   };
 }
