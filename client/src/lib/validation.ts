@@ -30,22 +30,24 @@ export const orderFormSchema = z.object({
 });
 export type OrderFormValues = z.infer<typeof orderFormSchema>;
 
-export const productFormSchema = z
-  .object({
-    order: z.string().min(1, 'order'),
-    title: requiredText(2, 255),
-    serialNumber: requiredText(3, 64),
-    type: requiredText(2, 64),
-    specification: requiredText(2, 255),
-    status: z.enum(['free', 'repair']),
-    condition: z.enum(['new', 'used']),
-    guaranteeStart: dateString,
-    guaranteeEnd: dateString,
-    priceUsd: positiveNumber,
-    priceUah: positiveNumber,
-  })
-  .refine((values) => !values.guaranteeStart || !values.guaranteeEnd || values.guaranteeEnd >= values.guaranteeStart, {
-    message: 'guaranteeOrder',
-    path: ['guaranteeEnd'],
-  });
-export type ProductFormValues = z.infer<typeof productFormSchema>;
+/** Price fields are built from the configured currencies, e.g. `{ UAH: …, USD: … }`. */
+export const makeProductFormSchema = (currencies: readonly string[]) =>
+  z
+    .object({
+      order: z.string().min(1, 'order'),
+      title: requiredText(2, 255),
+      serialNumber: requiredText(3, 64),
+      type: requiredText(2, 64),
+      specification: requiredText(2, 255),
+      status: z.enum(['free', 'repair']),
+      condition: z.enum(['new', 'used']),
+      guaranteeStart: dateString,
+      guaranteeEnd: dateString,
+      photo: z.string().nullable(),
+      prices: z.object(Object.fromEntries(currencies.map((currency) => [currency, positiveNumber]))),
+    })
+    .refine((values) => !values.guaranteeStart || !values.guaranteeEnd || values.guaranteeEnd >= values.guaranteeStart, {
+      message: 'guaranteeOrder',
+      path: ['guaranteeEnd'],
+    });
+export type ProductFormValues = z.infer<ReturnType<typeof makeProductFormSchema>>;

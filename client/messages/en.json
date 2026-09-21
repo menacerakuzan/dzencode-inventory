@@ -10,7 +10,8 @@
     "save": "Save",
     "cancel": "Cancel",
     "notSelected": "Not selected",
-    "actionFailed": "Action failed: {message}"
+    "actionFailed": "Action failed: {message}",
+    "edit": "Edit"
   },
   "nav": {
     "label": "Main menu",
@@ -44,7 +45,8 @@
     "emptyProducts": "This order has no products yet",
     "noMatches": "Nothing found for “{query}”",
     "warehouse": "Warehouse",
-    "details": "Order details"
+    "details": "Order details",
+    "edit": "Edit order"
   },
   "products": {
     "title": "Products",
@@ -67,15 +69,9 @@
       "new": "New",
       "used": "Used"
     },
-    "types": {
-      "Monitors": "Monitors",
-      "Laptops": "Laptops",
-      "Keyboards": "Keyboards",
-      "Motherboards": "Motherboards",
-      "Phones": "Phones"
-    },
     "byType": "Products by type",
-    "count": "Count"
+    "count": "Count",
+    "edit": "Edit product"
   },
   "deleteModal": {
     "order": "Are you sure you want to delete this order?",
@@ -91,7 +87,9 @@
     "date": "Order date",
     "warehouse": "Warehouse",
     "description": "Description",
-    "submit": "Create order"
+    "submit": "Create order",
+    "editTitle": "Edit order",
+    "save": "Save changes"
   },
   "productForm": {
     "title": "New product",
@@ -104,9 +102,16 @@
     "condition": "Condition",
     "guaranteeStart": "Guarantee from",
     "guaranteeEnd": "Guarantee until",
-    "priceUsd": "Price, USD",
-    "priceUah": "Price, UAH (default)",
-    "submit": "Add product"
+    "submit": "Add product",
+    "editTitle": "Edit product",
+    "save": "Save changes",
+    "photo": "Photo",
+    "upload": "Upload your photo",
+    "uploading": "Uploading…",
+    "uploadHint": "PNG, JPEG, WEBP or GIF",
+    "noPhoto": "No photo",
+    "price": "Price, {currency}",
+    "priceMain": "Price, {currency} (default)"
   },
   "validation": {
     "required": "This field is required",

@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { apiErrorMessage, productsApi } from '@/lib/api';
-import type { NewProduct, Product } from '@/types';
+import type { Product, ProductInput } from '@/types';
 import { deleteOrder } from './ordersSlice';
 
 export interface ProductsState {
@@ -11,11 +11,22 @@ export interface ProductsState {
 
 const initialState: ProductsState = { items: [], typeFilter: '' };
 
-export const createProduct = createAsyncThunk<Product, NewProduct, { rejectValue: string }>(
+export const createProduct = createAsyncThunk<Product, ProductInput, { rejectValue: string }>(
   'products/create',
   async (product, { rejectWithValue }) => {
     try {
       return await productsApi.create(product);
+    } catch (error) {
+      return rejectWithValue(apiErrorMessage(error));
+    }
+  },
+);
+
+export const updateProduct = createAsyncThunk<Product, { id: number; product: ProductInput }, { rejectValue: string }>(
+  'products/update',
+  async ({ id, product }, { rejectWithValue }) => {
+    try {
+      return await productsApi.update(id, product);
     } catch (error) {
       return rejectWithValue(apiErrorMessage(error));
     }
@@ -49,6 +60,9 @@ const productsSlice = createSlice({
     builder
       .addCase(createProduct.fulfilled, (state, action) => {
         state.items.unshift(action.payload);
+      })
+      .addCase(updateProduct.fulfilled, (state, action) => {
+        state.items = state.items.map((item) => (item.id === action.payload.id ? action.payload : item));
       })
       .addCase(deleteProduct.fulfilled, (state, action) => {
         state.items = state.items.filter((item) => item.id !== action.payload);

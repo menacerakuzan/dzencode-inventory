@@ -13,7 +13,7 @@ export function createMemoryRepositories(): Repositories & { data: { orders: Ord
       id: 1,
       serialNumber: '1234',
       isNew: true,
-      photo: '/products/monitors.svg',
+      photo: '/icons/monitors.svg',
       title: 'Product 1',
       type: 'Monitors',
       specification: 'Specification 1',
@@ -44,6 +44,12 @@ export function createMemoryRepositories(): Repositories & { data: { orders: Ord
         orders.push(created);
         return created;
       },
+      update: async (id, order) => {
+        const index = orders.findIndex((o) => o.id === id);
+        if (index === -1) return null;
+        orders[index] = { ...order, id };
+        return orders[index]!;
+      },
       remove: async (id) => {
         const index = orders.findIndex((o) => o.id === id);
         if (index === -1) return false;
@@ -57,9 +63,15 @@ export function createMemoryRepositories(): Repositories & { data: { orders: Ord
           (p) => (!filter.type || p.type === filter.type) && (!filter.orderId || p.order === filter.orderId),
         ),
       create: async (product) => {
-        const created = { ...product, id: products.length + 1, photo: null, date: '2026-01-01 00:00:00' };
+        const created = { ...product, id: products.length + 1, date: '2026-01-01 00:00:00' };
         products.push(created);
         return created;
+      },
+      update: async (id, product) => {
+        const index = products.findIndex((p) => p.id === id);
+        if (index === -1) return null;
+        products[index] = { ...product, id, date: products[index]!.date };
+        return products[index]!;
       },
       remove: async (id) => {
         const index = products.findIndex((p) => p.id === id);

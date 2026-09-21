@@ -1,4 +1,5 @@
 import type { ErrorRequestHandler, RequestHandler } from 'express';
+import multer from 'multer';
 import { ZodError, type ZodType } from 'zod';
 
 export class HttpError extends Error {
@@ -29,6 +30,11 @@ export const notFound: RequestHandler = (_req, _res, next) => {
 export const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
   if (error instanceof HttpError) {
     res.status(error.status).json({ message: error.message, errors: error.details });
+    return;
+  }
+  if (error instanceof multer.MulterError) {
+    const tooLarge = error.code === 'LIMIT_FILE_SIZE';
+    res.status(tooLarge ? 413 : 400).json({ message: tooLarge ? 'File is too large' : error.message });
     return;
   }
   if (error?.type === 'entity.parse.failed') {

@@ -1,11 +1,5 @@
 import type { Currency, Price, Product, Totals } from '@/types';
 
-const SHORT_MONTHS: Record<string, readonly string[]> = {
-  ru: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'],
-  uk: ['Січ', 'Лют', 'Бер', 'Кві', 'Тра', 'Чер', 'Лип', 'Сер', 'Вер', 'Жов', 'Лис', 'Гру'],
-  en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-};
-
 const pad = (n: number) => String(n).padStart(2, '0');
 
 /** API dates are wall-clock "YYYY-MM-DD HH:mm:ss" without a zone, so they are parsed as local time on both server and client. */
@@ -22,8 +16,11 @@ export const toSqlDateTime = (date: Date): string =>
 /** Value for `<input type="datetime-local">`. */
 export const toDateTimeLocal = (date: Date): string => toSqlDateTime(date).slice(0, 16).replace(' ', 'T');
 
-export const shortMonth = (date: Date, locale: string): string =>
-  (SHORT_MONTHS[locale] ?? SHORT_MONTHS.en!)[date.getMonth()]!;
+/** Three-letter month from the locale data: "Апр", "Кві", "Apr". */
+export const shortMonth = (date: Date, locale: string): string => {
+  const name = new Intl.DateTimeFormat(locale, { month: 'short' }).format(date).replace('.', '');
+  return name.charAt(0).toLocaleUpperCase(locale) + name.slice(1, 3);
+};
 
 /** "06 / 04" */
 export const formatDayMonth = (value: string): string => {
@@ -74,30 +71,26 @@ export function formatAmount(value: number): string {
     .replace(/,/g, NBSP);
 }
 
-export const CURRENCY_LABEL: Record<Currency, string> = { USD: '$', UAH: 'UAH' };
-
 export const formatMoney = (value: number, currency: Currency): string =>
-  `${formatAmount(value)}${NBSP}${CURRENCY_LABEL[currency]}`;
-
-export const emptyTotals = (): Totals => ({ USD: 0, UAH: 0 });
+  `${formatAmount(value)}${NBSP}${currency}`;
 
 const round2 = (value: number) => Math.round(value * 100) / 100;
 
+/** Sum of product prices per currency, e.g. `{ UAH: 5200, USD: 200 }`. */
 export function sumTotals(products: Pick<Product, 'price'>[]): Totals {
-  const totals = emptyTotals();
+  const totals: Totals = {};
   for (const product of products) {
-    for (const price of product.price) totals[price.symbol] += price.value;
+    for (const price of product.price) totals[price.symbol] = (totals[price.symbol] ?? 0) + price.value;
   }
-  return { USD: round2(totals.USD), UAH: round2(totals.UAH) };
+  return Object.fromEntries(Object.entries(totals).map(([currency, value]) => [currency, round2(value)]));
 }
 
-export const totalsToPrices = (totals: Totals): Price[] => [
-  { value: totals.USD, symbol: 'USD', isDefault: false },
-  { value: totals.UAH, symbol: 'UAH', isDefault: true },
-];
+/** Totals as a price list: every configured currency, the default one marked as main. */
+export const totalsToPrices = (totals: Totals, currencies: Currency[], defaultCurrency: Currency): Price[] =>
+  currencies.map((symbol) => ({ value: totals[symbol] ?? 0, symbol, isDefault: symbol === defaultCurrency }));
 
-/** Splits prices into the default (large) one and the secondary (small) one, as on the mockups. */
-export function splitPrices(prices: Price[]): { main: Price | undefined; secondary: Price | undefined } {
+/** The default price is shown large, the other currencies small above it, as on the mockups. */
+export function splitPrices(prices: Price[]): { main: Price | undefined; secondary: Price[] } {
   const main = prices.find((p) => p.isDefault) ?? prices[0];
-  return { main, secondary: prices.find((p) => p !== main) };
+  return { main, secondary: prices.filter((p) => p !== main) };
 }

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { config } from '../config.js';
 
 const DATE_TIME = /^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2})(:\d{2})?$/;
 
@@ -20,7 +21,7 @@ export const loginSchema = z.object({
   password: z.string().min(6, 'Password must contain at least 6 characters').max(128),
 });
 
-export const orderCreateSchema = z.object({
+export const orderInputSchema = z.object({
   title: z.string().trim().min(3, 'Title must contain at least 3 characters').max(255),
   description: z.string().trim().max(1000).default(''),
   date: dateTime,
@@ -29,11 +30,23 @@ export const orderCreateSchema = z.object({
 
 const priceSchema = z.object({
   value: z.number().nonnegative().max(1_000_000_000),
-  symbol: z.enum(['USD', 'UAH']),
+  symbol: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .refine((code) => config.currencies.includes(code), `Currency must be one of: ${config.currencies.join(', ')}`),
   isDefault: z.boolean(),
 });
 
-export const productCreateSchema = z.object({
+/** Built-in icon (`/icons/…`) or an uploaded image (`/uploads/…`); `null` — the default icon. */
+const photoPath = z
+  .string()
+  .regex(/^\/(icons|uploads)\/[\w.-]+$/, 'Photo must be an uploaded file or a built-in icon')
+  .nullable()
+  .default(null);
+
+export const productInputSchema = z.object({
+  photo: photoPath,
   title: z.string().trim().min(2).max(255),
   serialNumber: z.string().trim().min(3).max(64),
   isNew: z.boolean(),

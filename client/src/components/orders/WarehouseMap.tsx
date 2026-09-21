@@ -2,6 +2,7 @@
 
 import 'leaflet/dist/leaflet.css';
 import { CircleMarker, MapContainer, Popup, TileLayer } from 'react-leaflet';
+import { MAP_ATTRIBUTION, MAP_TILE_URL } from '@/lib/config';
 import type { Warehouse } from '@/types';
 
 /** Map with the order's warehouse. Loaded lazily and only in the browser (Leaflet needs `window`). */
@@ -14,8 +15,8 @@ export default function WarehouseMap({ warehouse }: { warehouse: Warehouse }) {
       className="warehouse-map"
     >
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution={MAP_ATTRIBUTION}
+        url={MAP_TILE_URL}
       />
       <CircleMarker
         center={[warehouse.lat, warehouse.lng]}

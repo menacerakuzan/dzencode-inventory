@@ -11,13 +11,16 @@ import { apiErrorMessage, authApi } from '@/lib/api';
 import { cn } from '@/lib/cn';
 import { loginSchema, type LoginValues } from '@/lib/validation';
 
-const DEMO = { email: 'admin@inventory.local', password: 'Admin123!' };
-
 /** Only same-site relative paths are allowed as the post-login target (no open redirect). */
 const safeNext = (next: string | undefined) =>
   next && next.startsWith('/') && !next.startsWith('//') && !next.startsWith('/login') ? next : '/orders';
 
-export default function LoginForm({ next }: { next?: string }) {
+export interface DemoCredentials {
+  email: string;
+  password: string;
+}
+
+export default function LoginForm({ next, demo }: { next?: string; demo?: DemoCredentials }) {
   const t = useTranslations('login');
   const router = useRouter();
   const {
@@ -43,9 +46,9 @@ export default function LoginForm({ next }: { next?: string }) {
     }
   });
 
-  const fillDemo = () => {
-    setValue('email', DEMO.email, { shouldValidate: true });
-    setValue('password', DEMO.password, { shouldValidate: true });
+  const fillDemo = (credentials: DemoCredentials) => {
+    setValue('email', credentials.email, { shouldValidate: true });
+    setValue('password', credentials.password, { shouldValidate: true });
   };
 
   return (
@@ -87,14 +90,16 @@ export default function LoginForm({ next }: { next?: string }) {
         {t('submit')}
       </button>
 
-      <div className="login-card__demo">
-        <span>
-          {t('demo')}: <code>{DEMO.email}</code> / <code>{DEMO.password}</code>
-        </span>
-        <button type="button" className="btn btn-link btn-sm p-0" onClick={fillDemo}>
-          {t('fillDemo')}
-        </button>
-      </div>
+      {demo && (
+        <div className="login-card__demo">
+          <span>
+            {t('demo')}: <code>{demo.email}</code> / <code>{demo.password}</code>
+          </span>
+          <button type="button" className="btn btn-link btn-sm p-0" onClick={() => fillDemo(demo)}>
+            {t('fillDemo')}
+          </button>
+        </div>
+      )}
     </motion.form>
   );
 }

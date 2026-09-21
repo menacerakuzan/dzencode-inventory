@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { NewOrder, NewProduct, Order, Product, User, Warehouse } from '@/types';
+import type { Icon, Order, OrderInput, Product, ProductInput, User } from '@/types';
 
 export const api = axios.create({
   baseURL: '/api',
@@ -34,15 +34,27 @@ export const authApi = {
 };
 
 export const ordersApi = {
-  create: (order: NewOrder) => api.post<Order>('/orders', order).then((r) => r.data),
+  create: (order: OrderInput) => api.post<Order>('/orders', order).then((r) => r.data),
+  update: (id: number, order: OrderInput) => api.put<Order>(`/orders/${id}`, order).then((r) => r.data),
   remove: (id: number) => api.delete(`/orders/${id}`),
 };
 
 export const productsApi = {
-  create: (product: NewProduct) => api.post<Product>('/products', product).then((r) => r.data),
+  create: (product: ProductInput) => api.post<Product>('/products', product).then((r) => r.data),
+  update: (id: number, product: ProductInput) =>
+    api.put<Product>(`/products/${id}`, product).then((r) => r.data),
   remove: (id: number) => api.delete(`/products/${id}`),
 };
 
-export const warehousesApi = {
-  list: () => api.get<Warehouse[]>('/warehouses').then((r) => r.data),
+export const iconsApi = {
+  list: () => api.get<Icon[]>('/icons').then((r) => r.data),
+};
+
+export const uploadsApi = {
+  /** Uploads an image and returns its public URL (`/uploads/…`). */
+  upload: (file: File) => {
+    const form = new FormData();
+    form.append('file', file);
+    return api.post<{ url: string }>('/uploads', form).then((r) => r.data.url);
+  },
 };

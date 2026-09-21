@@ -38,6 +38,11 @@ services:
       JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env (see .env.example)}
       CORS_ORIGINS: ${PUBLIC_URL:-http://localhost:8080}
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      CURRENCIES: ${CURRENCIES:-UAH,USD}
+      DEFAULT_CURRENCY: ${DEFAULT_CURRENCY:-UAH}
+      UPLOAD_MAX_MB: ${UPLOAD_MAX_MB:-2}
+    volumes:
+      - uploads:/app/uploads
     depends_on:
       db:
         condition: service_healthy
@@ -47,6 +52,8 @@ services:
     restart: unless-stopped
     environment:
       API_INTERNAL_URL: http://server:4000
+      DEMO_EMAIL: ${DEMO_EMAIL:-}
+      DEMO_PASSWORD: ${DEMO_PASSWORD:-}
     depends_on:
       server:
         condition: service_healthy
@@ -64,3 +71,4 @@ services:
 
 volumes:
   db-data:
+  uploads:

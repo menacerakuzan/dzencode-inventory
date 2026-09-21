@@ -7,7 +7,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import { cn } from '@/lib/cn';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectSearch, selectSelectedOrder, selectVisibleOrders } from '@/store/selectors';
-import { orderFormToggled } from '@/store/slices/uiSlice';
+import { orderFormOpened } from '@/store/slices/uiSlice';
 import OrderCard from './OrderCard';
 import OrderDetails from './OrderDetails';
 
@@ -34,7 +34,7 @@ export default function OrdersView() {
         title={t('title')}
         count={total}
         addLabel={t('add')}
-        onAdd={() => dispatch(orderFormToggled(true))}
+        onAdd={() => dispatch(orderFormOpened({ id: null }))}
       />
 
       <LayoutGroup>
