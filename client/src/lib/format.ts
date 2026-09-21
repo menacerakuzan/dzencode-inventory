@@ -43,6 +43,12 @@ export const formatNumericDate = (value: string): string => {
   return `${pad(d.getDate())} / ${pad(d.getMonth() + 1)} / ${d.getFullYear()}`;
 };
 
+/** "06 Апр 2017" */
+export const formatShortTextDate = (value: string, locale: string): string => {
+  const d = parseDateTime(value);
+  return `${pad(d.getDate())} ${shortMonth(d, locale)} ${d.getFullYear()}`;
+};
+
 /** Header clock: "06 Апр, 2017" */
 export const formatHeaderDate = (date: Date, locale: string): string =>
   `${pad(date.getDate())} ${shortMonth(date, locale)}, ${date.getFullYear()}`;

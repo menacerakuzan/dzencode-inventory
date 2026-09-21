@@ -4,16 +4,10 @@ import { makeOrder, makeProduct } from '@/test/fixtures';
 import {
   selectFilteredProducts,
   selectOrderSummaries,
-  selectSpecifications,
   selectVisibleOrders,
 } from './selectors';
 import { createOrder, deleteOrder, orderSelected, ordersHydrated } from './slices/ordersSlice';
-import {
-  deleteProduct,
-  productsHydrated,
-  specificationFilterChanged,
-  typeFilterChanged,
-} from './slices/productsSlice';
+import { deleteProduct, productsHydrated, typeFilterChanged } from './slices/productsSlice';
 import { searchChanged } from './slices/uiSlice';
 import { makeStore } from './store';
 
@@ -72,29 +66,20 @@ describe('orders', () => {
 });
 
 describe('products', () => {
-  it('filters by type, specification and search', () => {
+  it('filters by type and search', () => {
     const store = seededStore();
     store.dispatch(typeFilterChanged('Monitors'));
     expect(selectFilteredProducts(store.getState()).map((p) => p.id)).toEqual([1, 2]);
-    expect(selectSpecifications(store.getState())).toEqual(['24"', '27"']);
-
-    store.dispatch(specificationFilterChanged('24"'));
-    expect(selectFilteredProducts(store.getState()).map((p) => p.id)).toEqual([2]);
 
     store.dispatch(typeFilterChanged(''));
-    expect(store.getState().products.filters).toEqual({ type: '', specification: '' });
-
     store.dispatch(searchChanged('sn-mac'));
     expect(selectFilteredProducts(store.getState()).map((p) => p.id)).toEqual([3]);
   });
 
-  it('persists filters to localStorage (Web Storage)', () => {
+  it('persists the type filter to localStorage (Web Storage)', () => {
     const store = seededStore();
     store.dispatch(typeFilterChanged('Laptops'));
-    expect(JSON.parse(window.localStorage.getItem('inventory:product-filters')!)).toEqual({
-      type: 'Laptops',
-      specification: '',
-    });
+    expect(window.localStorage.getItem('inventory:product-type')).toBe('Laptops');
   });
 
   it('deletes a product through the API and keeps it when the request fails', async () => {

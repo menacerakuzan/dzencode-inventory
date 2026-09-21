@@ -7,6 +7,7 @@ import {
   formatLongDate,
   formatMoney,
   formatNumericDate,
+  formatShortTextDate,
   formatTime,
   parseDateTime,
   splitPrices,
@@ -30,6 +31,7 @@ describe('dates', () => {
     expect(formatLongDate('2017-09-06 12:00:00', 'uk')).toBe('06 / Вер / 2017');
     expect(formatLongDate('2017-09-06 12:00:00', 'en')).toBe('06 / Sep / 2017');
     expect(formatNumericDate('2025-08-06 00:00:00')).toBe('06 / 08 / 2025');
+    expect(formatShortTextDate('2025-08-06 00:00:00', 'ru')).toBe('06 Авг 2025');
   });
 
   it('formats header date, time and datetime-local value', () => {

@@ -13,17 +13,9 @@
 
 .products-filter {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 12px 28px;
-  margin-left: clamp(0px, 2vw, 24px);
-
-  &__field {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 0;
-  }
+  gap: 10px;
+  margin: 0 0 0 clamp(0px, 2vw, 24px);
 
   &__label {
     color: $muted-dark;
@@ -32,30 +24,15 @@
   }
 
   &__select {
-    width: clamp(160px, 16vw, 260px);
+    width: clamp(180px, 18vw, 280px);
     font-size: 0.8rem;
     font-weight: 600;
-  }
-
-  &__reset {
-    color: $green-dark;
-    font-size: 0.8rem;
-    text-decoration: none;
   }
 
   @include down($bp-md) {
     flex: 1;
     min-width: 0;
     margin-left: 0;
-
-    &__field {
-      flex: 1 1 100%;
-      min-width: 0;
-    }
-
-    &__label {
-      min-width: 92px;
-    }
 
     &__select {
       flex: 1;
@@ -69,7 +46,7 @@
 .product-row {
   display: grid;
   grid-template-columns:
-    8px 48px minmax(0, 2.2fr) 96px 136px 128px minmax(0, 1.3fr)
+    8px 48px minmax(0, 2.2fr) 96px 196px 128px minmax(0, 1.3fr)
     minmax(0, 1.5fr) 100px 32px;
   align-items: center;
   gap: 16px;
@@ -146,9 +123,9 @@
   }
 
   // The product date is optional in the spec: hidden on medium screens to keep the row readable.
-  @include down($bp-xxl) {
+  @media (max-width: 1599.98px) {
     grid-template-columns:
-      8px 48px minmax(0, 2fr) 96px 136px 128px minmax(0, 1.2fr)
+      8px 48px minmax(0, 2fr) 96px 196px 128px minmax(0, 1.2fr)
       minmax(0, 1.4fr) 32px;
     gap: 14px;
 
@@ -188,8 +165,7 @@
       grid-row: 1;
     }
 
-    &__state,
-    &__guarantee {
+    &__state {
       flex-direction: row;
       flex-wrap: wrap;
       gap: 0 12px;
