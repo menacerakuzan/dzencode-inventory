@@ -41,11 +41,14 @@ export default function ProductRow({ product, orderTitle, index }: Props) {
         unoptimized
       />
       <div className="product-row__info">
-        <span className="product-row__title">{product.title}</span>
+        <span className="product-row__title" title={product.title}>{product.title}</span>
         <span className="product-row__serial">{product.serialNumber}</span>
       </div>
-      <span className={cn('product-status', `product-status--${product.status}`)}>
-        {t(`status.${product.status}`)}
+      <span className="product-row__state">
+        <span className={cn('product-status', `product-status--${product.status}`)}>
+          {t(`status.${product.status}`)}
+        </span>
+        <span className="product-row__condition">{t(product.isNew ? 'condition.new' : 'condition.used')}</span>
       </span>
       <span className="product-row__guarantee">
         <span className="product-row__guarantee-line">
@@ -55,15 +58,14 @@ export default function ProductRow({ product, orderTitle, index }: Props) {
           <span className="product-row__muted">{t('to')}</span> {formatNumericDate(product.guarantee.end)}
         </span>
       </span>
-      <span className="product-row__condition">{t(product.isNew ? 'condition.new' : 'condition.used')}</span>
       <PriceStack className="product-row__price" prices={product.price} />
       <span className="product-row__type">
         <span className="product-row__type-name">{typeLabel}</span>
-        <span className="product-row__spec">{product.specification}</span>
+        <span className="product-row__spec" title={product.specification}>{product.specification}</span>
       </span>
       <span className="product-row__order">
         {orderTitle ? (
-          <Link href={`/orders?order=${product.order}`} className="link-underline product-row__order-link">
+          <Link href={`/orders?order=${product.order}`} className="link-underline product-row__order-link" title={orderTitle}>
             {orderTitle}
           </Link>
         ) : (
