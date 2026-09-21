@@ -46,8 +46,10 @@ export const makeProductFormSchema = (currencies: readonly string[]) =>
       photo: z.string().nullable(),
       prices: z.object(Object.fromEntries(currencies.map((currency) => [currency, positiveNumber]))),
     })
-    .refine((values) => !values.guaranteeStart || !values.guaranteeEnd || values.guaranteeEnd >= values.guaranteeStart, {
+    .refine((values) => values.guaranteeEnd >= values.guaranteeStart, {
       message: 'guaranteeOrder',
       path: ['guaranteeEnd'],
+      // Check the dates even while other fields are still invalid, so all errors show on the first submit.
+      when: ({ issues }) => !issues.some((issue) => ['guaranteeStart', 'guaranteeEnd'].includes(String(issue.path?.[0]))),
     });
 export type ProductFormValues = z.infer<ReturnType<typeof makeProductFormSchema>>;

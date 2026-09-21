@@ -64,6 +64,11 @@ describe('makeProductFormSchema', () => {
     expect(messages(result)).toEqual({ guaranteeEnd: 'guaranteeOrder' });
   });
 
+  it('reports the guarantee order together with other field errors', () => {
+    const result = productFormSchema.safeParse({ ...valid, title: '', guaranteeEnd: '2025-01-01' });
+    expect(messages(result)).toEqual({ title: 'required', guaranteeEnd: 'guaranteeOrder' });
+  });
+
   it('requires a positive price in every configured currency and an order', () => {
     const result = productFormSchema.safeParse({ ...valid, order: '', prices: { UAH: 0 } });
     expect(messages(result)).toEqual({ order: 'order', 'prices.UAH': 'positive', 'prices.USD': 'positive' });
