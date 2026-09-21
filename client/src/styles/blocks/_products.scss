@@ -1,6 +1,10 @@
 @use '../abstracts/tokens' as *;
 
 .products {
+  &__chart {
+    margin-bottom: 24px;
+  }
+
   &__list {
     display: flex;
     flex-direction: column;
@@ -175,5 +179,15 @@
       display: flex;
       align-items: flex-start;
     }
+  }
+}
+
+.types-chart {
+  width: 100%;
+  height: 200px;
+
+  &--loading {
+    border-radius: $radius;
+    background: #f1f4f6;
   }
 }

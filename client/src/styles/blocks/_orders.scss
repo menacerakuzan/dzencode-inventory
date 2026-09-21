@@ -278,3 +278,14 @@
     }
   }
 }
+
+.warehouse-map {
+  z-index: 0;
+  height: 180px;
+  margin-bottom: 18px;
+  border-radius: $radius;
+
+  &--loading {
+    background: #f1f4f6;
+  }
+}

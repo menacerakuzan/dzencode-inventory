@@ -1,6 +1,6 @@
 # Inventory — SPA «Orders & Products»
 
-Тестовое задание dZENcode (уровень **Junior+**). SPA для учёта приходов (Orders) и продуктов (Products) на складах: список приходов с раскрывающейся панелью деталей, удаление через попап, каталог продуктов с фильтром по типу, часы и счётчик активных вкладок в реальном времени, статистика с графиками и картой складов.
+Тестовое задание dZENcode (уровень **Junior+**). SPA для учёта приходов (Orders) и продуктов (Products) на складах: список приходов с раскрывающейся панелью деталей, удаление через попап, каталог продуктов с фильтром по типу, часы и счётчик активных вкладок в реальном времени, график продуктов по типам и карта склада прихода.
 
 ![Приходы](docs/screenshots/order-details.png)
 
@@ -52,14 +52,14 @@ docker compose up -d --build
 - Переключатель языка RU / UA / EN.
 
 **Навигация (Navigation Menu)**
-- Ссылки на «Приход», «Продукты», «Статистика».
+- Ссылки на «Приход» и «Продукты» (ТЗ п.3).
 - Анимированное подчёркивание активного пункта.
 - В профиле (шестерёнка на аватаре) — выход.
 
 **Приходы (Orders)**
 - В каждом приходе видно: название, количество продуктов, дату создания в двух форматах (`06 / 04` и `06 / Апр / 2017`), сумму прихода в двух валютах (USD и UAH), кнопку удаления.
 - Клик по приходу открывает панель рядом, а список сжимается до компактного вида. Панель закрывается крестиком. В панели:
-  - склад;
+  - склад и его расположение на карте (Leaflet + OpenStreetMap);
   - описание;
   - продукты прихода;
   - «Добавить продукт».
@@ -70,12 +70,8 @@ docker compose up -d --build
 **Продукты (Products)**
 - Все продукты. У каждого: статус, название, серийный номер, гарантия «с … по …» в двух форматах, состояние (новый / Б/У), цена в двух валютах, тип, спецификация, название прихода (ссылка на приход), дата.
 - Фильтр по **типу** (один select). Выбранный тип запоминается в `localStorage`.
+- Над списком график «Продукты по типам» (Recharts).
 - Добавление продукта через форму с валидацией. Удаление через тот же попап.
-
-**Статистика**
-- Карточки с итогами.
-- Графики «продукты по типам» и «сумма приходов».
-- Карта складов (Leaflet + OpenStreetMap).
 
 **Адаптивность.** Вёрстка работает от 360px до широких экранов:
 - на телефоне сайдбар становится горизонтальным меню;
@@ -88,7 +84,7 @@ docker compose up -d --build
 | | |
 |---|---|
 | ![Приходы](docs/screenshots/orders.png) | ![Удаление](docs/screenshots/delete-modal.png) |
-| ![Продукты](docs/screenshots/products.png) | ![Статистика](docs/screenshots/stats.png) |
+| ![Продукты](docs/screenshots/products.png) | |
 | ![Валидация](docs/screenshots/form-validation.png) | ![Мобильная версия](docs/screenshots/mobile.png) |
 
 </details>
@@ -100,8 +96,8 @@ docker compose up -d --build
 | Требование | Реализация |
 |---|---|
 | Глобальное состояние | **Redux Toolkit** — `client/src/store`: слайсы, мемоизированные селекторы, async thunks, listener middleware |
-| Компонентный подход | `client/src/components/*` — layout, orders, products, modals, stats, ui |
-| Роутинг | Next.js App Router: `/orders`, `/products`, `/stats`, `/login` |
+| Компонентный подход | `client/src/components/*` — layout, orders, products, modals, ui |
+| Роутинг | Next.js App Router: `/orders`, `/products`, `/login` |
 | Анимации | библиотека `motion`: переход между роутами (`app/(dashboard)/template.tsx`), раскрытие прихода (layout-анимации), панели, модалки, удаление строк, подчёркивание меню, счётчики. Учитывается `prefers-reduced-motion` |
 | ES6+ | стрелочные функции, spread, деструктуризация, шаблонные строки, модули |
 | Git | история с ветками `feature/*`, см. [Git-ветвление](#git-ветвление) |
@@ -123,8 +119,8 @@ docker compose up -d --build
 | **JWT** | вход выдаёт JWT в **httpOnly**-cookie (недоступна из JS, защита от XSS). API проверяет подпись и срок, также принимает `Authorization: Bearer`. `proxy.ts` не пускает на страницы без токена |
 | **Web Storage** | выбранный тип продуктов сохраняется в `localStorage` через listener middleware Redux (`lib/storage.ts`) |
 | **Lazy Loading** | `next/dynamic`: модалки и формы, графики (recharts), карта (leaflet) грузятся отдельными чанками только по требованию; `loading.tsx` на уровне роутов |
-| **Charts** | Recharts: продукты по типам, суммы приходов (страница «Статистика») |
-| **Maps** | Leaflet + OpenStreetMap: склады с количеством и суммой приходов |
+| **Charts** | Recharts: график «Продукты по типам» над списком продуктов (`components/products/TypesChart.tsx`) |
+| **Maps** | Leaflet + OpenStreetMap: склад прихода на карте в панели деталей (`components/orders/WarehouseMap.tsx`) |
 
 ## Архитектура и стек
 
@@ -146,8 +142,8 @@ docker compose up -d --build
 │   ├── messages/           словари i18n (ru, uk, en)
 │   ├── public/products/    иконки продуктов
 │   └── src/
-│       ├── app/            роуты: (dashboard)/orders|products|stats, login
-│       ├── components/     layout, orders, products, modals, stats, ui, auth
+│       ├── app/            роуты: (dashboard)/orders|products, login
+│       ├── components/     layout, orders, products, modals, ui, auth
 │       ├── hooks/          useRealtime (Socket.io), useNow (часы)
 │       ├── i18n/           конфиг next-intl
 │       ├── lib/            api, serverApi, format, validation, storage
@@ -292,6 +288,6 @@ docker compose up -d --build
 Работа велась по упрощённому git-flow:
 - `main` — стабильная версия;
 - `develop` — интеграционная ветка;
-- `feature/*` — отдельные задачи: схема БД, API, realtime, клиентская основа, страницы Orders и Products, модалки и формы, i18n, статистика, Docker, документация.
+- `feature/*` — отдельные задачи: схема БД, API, realtime, клиентская основа, страницы Orders и Products, модалки и формы, i18n, графики и карта, Docker, документация.
 
 Каждая фича вливается в `develop` через merge-коммит (`--no-ff`), поэтому ветки видны в истории (`git log --graph`). Релиз — merge `develop` → `main`.

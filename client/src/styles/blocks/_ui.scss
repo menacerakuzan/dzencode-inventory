@@ -206,20 +206,6 @@
   }
 }
 
-.chart-skeleton {
-  height: 240px;
-  border-radius: $radius;
-  background: linear-gradient(90deg, #f1f4f6 25%, #e6ebee 50%, #f1f4f6 75%);
-  background-size: 200% 100%;
-  animation: skeleton 1.3s linear infinite;
-}
-
-@keyframes skeleton {
-  to {
-    background-position: -200% 0;
-  }
-}
-
 .status-page {
   display: flex;
   flex-direction: column;
