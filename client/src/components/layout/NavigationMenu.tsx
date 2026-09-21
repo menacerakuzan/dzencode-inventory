@@ -7,9 +7,13 @@ import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/cn';
 import ProfileCard from './ProfileCard';
 
+// Items from the mockup; only Orders and Products are part of the spec, the rest are shown disabled.
 const ITEMS = [
-  { href: '/orders', key: 'orders', icon: 'bi-box-seam' },
-  { href: '/products', key: 'products', icon: 'bi-display' },
+  { key: 'orders', href: '/orders', icon: 'bi-box-seam' },
+  { key: 'groups', href: null, icon: 'bi-collection' },
+  { key: 'products', href: '/products', icon: 'bi-display' },
+  { key: 'users', href: null, icon: 'bi-people' },
+  { key: 'settings', href: null, icon: 'bi-gear' },
 ] as const;
 
 export default function NavigationMenu() {
@@ -22,9 +26,20 @@ export default function NavigationMenu() {
       <nav aria-label={t('label')}>
         <ul className="nav-menu__list">
           {ITEMS.map((item) => {
+            if (!item.href) {
+              return (
+                <li key={item.key} className="nav-menu__item nav-menu__item--disabled">
+                  <span className="nav-menu__link nav-menu__link--disabled" aria-disabled="true" title={t('soon')}>
+                    <i className={cn('bi nav-menu__icon', item.icon)} aria-hidden />
+                    <span className="nav-menu__text">{t(item.key)}</span>
+                  </span>
+                </li>
+              );
+            }
+
             const active = pathname.startsWith(item.href);
             return (
-              <li key={item.href} className="nav-menu__item">
+              <li key={item.key} className="nav-menu__item">
                 <Link
                   href={item.href}
                   className={cn('nav-menu__link', active && 'nav-menu__link--active')}
