@@ -113,6 +113,21 @@ describe('ConfirmDeleteModal', () => {
     expect(store.getState().ui.deleteTarget).toBeNull();
   });
 
+  it('shows the server error and stays open when deletion fails', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(ordersApi, 'remove').mockRejectedValue(new Error('Network Error'));
+    const { store } = renderWithProviders(<ConfirmDeleteModal target={{ kind: 'order', id: 1 }} />);
+    act(() => {
+      seed(store);
+      store.dispatch({ type: 'ui/deleteRequested', payload: { kind: 'order', id: 1 } });
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Удалить' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Не удалось выполнить действие: Network Error');
+    expect(store.getState().orders.items).toHaveLength(2);
+    expect(store.getState().ui.deleteTarget).toEqual({ kind: 'order', id: 1 });
+  });
+
   it('closes on Escape without deleting', async () => {
     const user = userEvent.setup();
     const remove = vi.spyOn(ordersApi, 'remove');

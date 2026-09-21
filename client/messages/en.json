@@ -9,7 +9,8 @@
     "retry": "Retry",
     "save": "Save",
     "cancel": "Cancel",
-    "notSelected": "Not selected"
+    "notSelected": "Not selected",
+    "actionFailed": "Action failed: {message}"
   },
   "nav": {
     "label": "Main menu",
@@ -136,13 +137,6 @@
     "map": "Warehouses on the map",
     "mapOrders": "{count, plural, one {# order} other {# orders}}",
     "noData": "No data to display"
-  },
-  "toast": {
-    "orderCreated": "Order “{title}” created",
-    "orderDeleted": "Order deleted",
-    "productCreated": "Product “{title}” added",
-    "productDeleted": "Product deleted",
-    "error": "Action failed: {message}"
   },
   "errors": {
     "title": "Something went wrong",

@@ -25,6 +25,7 @@ export default function OrderFormModal() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<OrderFormValues>({
     resolver: zodResolver(orderFormSchema),
@@ -46,6 +47,8 @@ export default function OrderFormModal() {
     if (createOrder.fulfilled.match(result)) {
       dispatch(orderSelected(result.payload.id));
       close();
+    } else {
+      setError('root', { message: tc('actionFailed', { message: result.payload ?? '' }) });
     }
   });
 
@@ -97,6 +100,12 @@ export default function OrderFormModal() {
               className={cn('form-control', errors.description && 'is-invalid')}
             />
           </FormField>
+
+          {errors.root && (
+            <div className="alert alert-danger py-2 mb-0" role="alert">
+              {errors.root.message}
+            </div>
+          )}
         </div>
 
         <div className="form-modal__footer">

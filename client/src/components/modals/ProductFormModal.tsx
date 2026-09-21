@@ -45,6 +45,7 @@ export default function ProductFormModal({ orderId }: { orderId: number | null }
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
@@ -71,7 +72,11 @@ export default function ProductFormModal({ orderId }: { orderId: number | null }
         ],
       }),
     );
-    if (createProduct.fulfilled.match(result)) close();
+    if (createProduct.fulfilled.match(result)) {
+      close();
+    } else {
+      setError('root', { message: tc('actionFailed', { message: result.payload ?? '' }) });
+    }
   });
 
   const control = (name: keyof ProductFormValues) => cn(errors[name] && 'is-invalid');
@@ -199,6 +204,12 @@ export default function ProductFormModal({ orderId }: { orderId: number | null }
               />
             </FormField>
           </div>
+
+          {errors.root && (
+            <div className="alert alert-danger py-2 mb-0" role="alert">
+              {errors.root.message}
+            </div>
+          )}
         </div>
 
         <div className="form-modal__footer">

@@ -1,5 +1,4 @@
 import type { Server } from 'socket.io';
-import type { EventBus } from './types.js';
 
 export const SESSIONS_EVENT = 'sessions:count';
 
@@ -12,9 +11,3 @@ export function registerSessionCounter(io: Server): void {
     socket.on('disconnect', broadcast);
   });
 }
-
-export const createSocketEventBus = (io: Server): EventBus => ({
-  emit: (event, payload) => {
-    io.emit(event, payload);
-  },
-});

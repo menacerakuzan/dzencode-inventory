@@ -9,7 +9,8 @@
     "retry": "Повторити",
     "save": "Зберегти",
     "cancel": "Скасувати",
-    "notSelected": "Не обрано"
+    "notSelected": "Не обрано",
+    "actionFailed": "Не вдалося виконати дію: {message}"
   },
   "nav": {
     "label": "Головне меню",
@@ -136,13 +137,6 @@
     "map": "Склади на мапі",
     "mapOrders": "{count, plural, one {# надходження} few {# надходження} many {# надходжень} other {# надходження}}",
     "noData": "Немає даних для відображення"
-  },
-  "toast": {
-    "orderCreated": "Надходження «{title}» створено",
-    "orderDeleted": "Надходження видалено",
-    "productCreated": "Продукт «{title}» додано",
-    "productDeleted": "Продукт видалено",
-    "error": "Не вдалося виконати дію: {message}"
   },
   "errors": {
     "title": "Щось пішло не так",

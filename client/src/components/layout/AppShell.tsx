@@ -2,7 +2,6 @@
 
 import { MotionConfig } from 'motion/react';
 import type { ReactNode } from 'react';
-import Toasts from '@/components/ui/Toasts';
 import { useRealtime } from '@/hooks/useRealtime';
 import ModalsHost from './ModalsHost';
 import NavigationMenu from './NavigationMenu';
@@ -22,7 +21,6 @@ export default function AppShell({ children }: { children: ReactNode }) {
           </main>
         </div>
         <ModalsHost />
-        <Toasts />
       </div>
     </MotionConfig>
   );

@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { apiErrorMessage, productsApi } from '@/lib/api';
 import type { NewProduct, Product } from '@/types';
-import { deleteOrder, orderRemoved } from './ordersSlice';
+import { deleteOrder } from './ordersSlice';
 
 export interface ProductFilters {
   type: string;
@@ -40,26 +40,12 @@ export const deleteProduct = createAsyncThunk<number, number, { rejectValue: str
   },
 );
 
-const upsert = (state: ProductsState, product: Product) => {
-  const index = state.items.findIndex((item) => item.id === product.id);
-  if (index === -1) state.items.unshift(product);
-  else state.items[index] = product;
-};
-
-const removeByOrder = (state: ProductsState, orderId: number) => {
-  state.items = state.items.filter((item) => item.order !== orderId);
-};
-
 const productsSlice = createSlice({
   name: 'products',
   initialState,
   reducers: {
     productsHydrated(state, action: PayloadAction<Product[]>) {
       state.items = action.payload;
-    },
-    productUpserted: (state, action: PayloadAction<Product>) => upsert(state, action.payload),
-    productRemoved(state, action: PayloadAction<number>) {
-      state.items = state.items.filter((item) => item.id !== action.payload);
     },
     typeFilterChanged(state, action: PayloadAction<string>) {
       state.filters = { type: action.payload, specification: '' };
@@ -73,22 +59,19 @@ const productsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(createProduct.fulfilled, (state, action) => upsert(state, action.payload))
+      .addCase(createProduct.fulfilled, (state, action) => {
+        state.items.unshift(action.payload);
+      })
       .addCase(deleteProduct.fulfilled, (state, action) => {
         state.items = state.items.filter((item) => item.id !== action.payload);
       })
       // Products are removed in the DB by ON DELETE CASCADE, mirror it in the store.
-      .addCase(deleteOrder.fulfilled, (state, action) => removeByOrder(state, action.payload))
-      .addCase(orderRemoved, (state, action) => removeByOrder(state, action.payload));
+      .addCase(deleteOrder.fulfilled, (state, action) => {
+        state.items = state.items.filter((item) => item.order !== action.payload);
+      });
   },
 });
 
-export const {
-  productsHydrated,
-  productUpserted,
-  productRemoved,
-  typeFilterChanged,
-  specificationFilterChanged,
-  filtersRestored,
-} = productsSlice.actions;
+export const { productsHydrated, typeFilterChanged, specificationFilterChanged, filtersRestored } =
+  productsSlice.actions;
 export default productsSlice.reducer;
