@@ -61,7 +61,8 @@ export default function ProductFormModal({ id, orderId }: ProductForm) {
     formState: { errors, isSubmitting },
   } = useForm<ProductFormValues>({
     resolver: zodResolver(schema),
-    mode: 'onTouched',
+    mode: 'onSubmit',
+    reValidateMode: 'onChange',
     defaultValues,
   });
   const photo = useWatch({ control: formControl, name: 'photo' });
