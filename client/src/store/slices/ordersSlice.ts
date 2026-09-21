@@ -34,18 +34,6 @@ export const deleteOrder = createAsyncThunk<number, number, { rejectValue: strin
   },
 );
 
-const upsert = (state: OrdersState, order: Order) => {
-  const index = state.items.findIndex((item) => item.id === order.id);
-  if (index === -1) state.items.push(order);
-  else state.items[index] = order;
-  state.items.sort(byDateDesc);
-};
-
-const remove = (state: OrdersState, id: number) => {
-  state.items = state.items.filter((item) => item.id !== id);
-  if (state.selectedId === id) state.selectedId = null;
-};
-
 const ordersSlice = createSlice({
   name: 'orders',
   initialState,
@@ -59,16 +47,19 @@ const ordersSlice = createSlice({
     orderSelected(state, action: PayloadAction<number | null>) {
       state.selectedId = action.payload;
     },
-    /** Real-time sync: events from other tabs arrive through Socket.io. */
-    orderUpserted: (state, action: PayloadAction<Order>) => upsert(state, action.payload),
-    orderRemoved: (state, action: PayloadAction<number>) => remove(state, action.payload),
   },
   extraReducers: (builder) => {
     builder
-      .addCase(createOrder.fulfilled, (state, action) => upsert(state, action.payload))
-      .addCase(deleteOrder.fulfilled, (state, action) => remove(state, action.payload));
+      .addCase(createOrder.fulfilled, (state, action) => {
+        state.items.push(action.payload);
+        state.items.sort(byDateDesc);
+      })
+      .addCase(deleteOrder.fulfilled, (state, action) => {
+        state.items = state.items.filter((item) => item.id !== action.payload);
+        if (state.selectedId === action.payload) state.selectedId = null;
+      });
   },
 });
 
-export const { ordersHydrated, orderSelected, orderUpserted, orderRemoved } = ordersSlice.actions;
+export const { ordersHydrated, orderSelected } = ordersSlice.actions;
 export default ordersSlice.reducer;

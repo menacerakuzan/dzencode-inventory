@@ -5,15 +5,14 @@ import helmet from 'helmet';
 import { requireAuth } from './http/auth.js';
 import { errorHandler, notFound } from './http/errors.js';
 import { authRouter, ordersRouter, productsRouter, warehousesRouter } from './http/routes.js';
-import type { EventBus, Repositories } from './types.js';
+import type { Repositories } from './types.js';
 
 interface AppDeps {
   repos: Repositories;
-  events: EventBus;
   corsOrigins: string[];
 }
 
-export function createApp({ repos, events, corsOrigins }: AppDeps): Express {
+export function createApp({ repos, corsOrigins }: AppDeps): Express {
   const app = express();
 
   app.disable('x-powered-by');
@@ -27,8 +26,8 @@ export function createApp({ repos, events, corsOrigins }: AppDeps): Express {
     res.json({ status: 'ok' });
   });
   app.use('/api/auth', authRouter(repos));
-  app.use('/api/orders', requireAuth, ordersRouter(repos, events));
-  app.use('/api/products', requireAuth, productsRouter(repos, events));
+  app.use('/api/orders', requireAuth, ordersRouter(repos));
+  app.use('/api/products', requireAuth, productsRouter(repos));
   app.use('/api/warehouses', requireAuth, warehousesRouter(repos));
 
   app.use(notFound);

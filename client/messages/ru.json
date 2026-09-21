@@ -9,7 +9,8 @@
     "retry": "Повторить",
     "save": "Сохранить",
     "cancel": "Отменить",
-    "notSelected": "Не выбран"
+    "notSelected": "Не выбран",
+    "actionFailed": "Не удалось выполнить действие: {message}"
   },
   "nav": {
     "label": "Главное меню",
@@ -136,13 +137,6 @@
     "map": "Склады на карте",
     "mapOrders": "{count, plural, one {# приход} few {# прихода} many {# приходов} other {# прихода}}",
     "noData": "Нет данных для отображения"
-  },
-  "toast": {
-    "orderCreated": "Приход «{title}» создан",
-    "orderDeleted": "Приход удалён",
-    "productCreated": "Продукт «{title}» добавлен",
-    "productDeleted": "Продукт удалён",
-    "error": "Не удалось выполнить действие: {message}"
   },
   "errors": {
     "title": "Что-то пошло не так",

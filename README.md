@@ -77,8 +77,6 @@ docker compose up -d --build
 - Графики «продукты по типам» и «сумма приходов».
 - Карта складов (Leaflet + OpenStreetMap).
 
-**Синхронизация между вкладками.** Создание и удаление приходов и продуктов рассылается через Socket.io. Все открытые вкладки обновляются без перезагрузки.
-
 **Адаптивность.** Вёрстка работает от 360px до широких экранов:
 - на телефоне сайдбар становится горизонтальным меню;
 - строки продуктов превращаются в карточки;
@@ -104,10 +102,10 @@ docker compose up -d --build
 | Глобальное состояние | **Redux Toolkit** — `client/src/store`: слайсы, мемоизированные селекторы, async thunks, listener middleware |
 | Компонентный подход | `client/src/components/*` — layout, orders, products, modals, stats, ui |
 | Роутинг | Next.js App Router: `/orders`, `/products`, `/stats`, `/login` |
-| Анимации | библиотека `motion`: переход между роутами (`app/(dashboard)/template.tsx`), раскрытие прихода (layout-анимации), панели, модалки, удаление строк, подчёркивание меню, счётчики, уведомления. Учитывается `prefers-reduced-motion` |
+| Анимации | библиотека `motion`: переход между роутами (`app/(dashboard)/template.tsx`), раскрытие прихода (layout-анимации), панели, модалки, удаление строк, подчёркивание меню, счётчики. Учитывается `prefers-reduced-motion` |
 | ES6+ | стрелочные функции, spread, деструктуризация, шаблонные строки, модули |
 | Git | история с ветками `feature/*`, см. [Git-ветвление](#git-ветвление) |
-| WebSocket | **Socket.io**: счётчик вкладок и real-time синхронизация (`server/src/realtime.ts`, `client/src/hooks/useRealtime.ts`) |
+| WebSocket | **Socket.io**: счётчик активных вкладок (`server/src/realtime.ts`, `client/src/hooks/useRealtime.ts`) |
 | HTML/CSS по макетам | SCSS по **БЭМ** (`client/src/styles/blocks/*`, один файл на блок) + **Bootstrap 5** (сетка форм, form-controls, кнопки, утилиты) + Bootstrap Icons |
 | REST (Axios/Fetch) | **Axios** на клиенте (`lib/api.ts`), **fetch** при SSR (`lib/serverApi.ts`) |
 | Валидация форм | **react-hook-form + zod** на клиенте, **zod** на сервере (ошибки полей возвращаются в ответе 400) |
@@ -139,7 +137,7 @@ docker compose up -d --build
 ```
 
 - **client:** Next.js 16 (App Router), React 19, TypeScript, Redux Toolkit, next-intl, Bootstrap 5 + SCSS (БЭМ), motion, react-hook-form + zod, Axios, socket.io-client, Recharts, react-leaflet, Vitest.
-- **server:** Node.js, Express 5, Socket.io 4, mysql2, jsonwebtoken, bcryptjs, zod, helmet, Vitest + supertest. Зависимости передаются в `createApp()` (репозитории, шина событий), поэтому API тестируется без базы.
+- **server:** Node.js, Express 5, Socket.io 4, mysql2, jsonwebtoken, bcryptjs, zod, helmet, Vitest + supertest. Репозитории передаются в `createApp()` как зависимость, поэтому API тестируется без базы.
 - **nginx:** единая точка входа. Фронт, API и WebSocket на одном домене, поэтому не нужны CORS и third-party cookies.
 
 ```
@@ -268,9 +266,7 @@ erDiagram
 
 Ошибки валидации приходят как `400 { message, errors: [{ path, message }] }`.
 
-**События Socket.io (сервер → клиенты):**
-- `sessions:count`: количество подключённых вкладок;
-- `order:created`, `order:deleted`, `product:created`, `product:deleted`: синхронизация данных между вкладками.
+**Socket.io:** каждая открытая вкладка держит одно соединение. При подключении и отключении сервер рассылает всем событие `sessions:count` с числом активных вкладок.
 
 ## Деплой на VDS
 
