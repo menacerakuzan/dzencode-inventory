@@ -19,6 +19,12 @@
     min-width: 0;
     padding: 56px clamp(16px, 4vw, 64px) 72px clamp(16px, 7vw, 124px);
 
+    // Laptop screens: narrower side gaps leave room for the products table.
+    @media (min-width: $bp-lg) and (max-width: 1599.98px) {
+      padding-right: 32px;
+      padding-left: 48px;
+    }
+
     @include down($bp-lg) {
       padding: 28px 16px 56px;
     }

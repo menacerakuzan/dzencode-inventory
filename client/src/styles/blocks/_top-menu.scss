@@ -120,10 +120,6 @@
   &__date {
     margin-right: 10px;
     font-weight: 500;
-
-    @include down($bp-sm) {
-      display: none;
-    }
   }
 
   &__icon {
@@ -172,6 +168,10 @@
   &__caption {
     color: $muted-dark;
     font-weight: 500;
+
+    @include down($bp-sm) {
+      display: none;
+    }
   }
 
   &__count {
