@@ -15,7 +15,10 @@ export default function SessionsCounter() {
   return (
     <div className={cn('sessions', !connected && 'sessions--offline')} title={label} role="status">
       <span className="sessions__indicator" aria-hidden />
-      <i className="bi bi-people-fill sessions__icon" aria-hidden />
+      <i className="bi bi-window-stack sessions__icon" aria-hidden />
+      <span className="sessions__caption" aria-hidden>
+        {t('tabs')}
+      </span>
       <span className="sessions__count" aria-hidden>
         <AnimatePresence mode="popLayout" initial={false}>
           <motion.span

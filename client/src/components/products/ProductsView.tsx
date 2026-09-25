@@ -4,9 +4,8 @@ import { AnimatePresence } from 'motion/react';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import PageHeader from '@/components/ui/PageHeader';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useAppSelector } from '@/store/hooks';
 import { selectFilteredProducts, selectOrderTitles, selectTypeCounts } from '@/store/selectors';
-import { productFormOpened } from '@/store/slices/uiSlice';
 import ProductRow from './ProductRow';
 import ProductsFilter from './ProductsFilter';
 
@@ -18,7 +17,6 @@ const TypesChart = dynamic(() => import('./TypesChart'), {
 
 export default function ProductsView() {
   const t = useTranslations('products');
-  const dispatch = useAppDispatch();
   const products = useAppSelector(selectFilteredProducts);
   const orderTitles = useAppSelector(selectOrderTitles);
   const typeCounts = useAppSelector(selectTypeCounts);
@@ -27,12 +25,7 @@ export default function ProductsView() {
 
   return (
     <section className="products">
-      <PageHeader
-        title={t('title')}
-        count={products.length}
-        addLabel={t('add')}
-        onAdd={() => dispatch(productFormOpened({ id: null, orderId: null }))}
-      >
+      <PageHeader title={t('title')} count={products.length}>
         <ProductsFilter />
       </PageHeader>
 
