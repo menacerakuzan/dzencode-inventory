@@ -17,12 +17,6 @@ const list = (value: string) =>
     .map((item) => item.trim())
     .filter(Boolean);
 
-const currencies = list(env('CURRENCIES', 'UAH,USD')).map((code) => code.toUpperCase());
-const defaultCurrency = env('DEFAULT_CURRENCY', currencies[0]).toUpperCase();
-if (!currencies.includes(defaultCurrency)) {
-  throw new Error(`DEFAULT_CURRENCY "${defaultCurrency}" must be one of CURRENCIES (${currencies.join(', ')})`);
-}
-
 // `public/` sits next to `src/` and `dist/`, so the path works both in dev and in the build.
 const serverRoot = fileURLToPath(new URL('..', import.meta.url));
 
@@ -44,9 +38,9 @@ export const config = {
     password: env('DB_PASSWORD', 'inventory'),
     database: env('DB_NAME', 'inventory'),
   },
-  /** Currencies a product price can be set in; the default one is shown as the main price. */
-  currencies,
-  defaultCurrency,
+  /** Currencies a product price is set in (as in `app.js`); the default one is shown as the main price. */
+  currencies: ['UAH', 'USD'] as string[],
+  defaultCurrency: 'UAH',
   /** Built-in product icons: every image file in this folder can be chosen as a product photo. */
   iconsDir: path.resolve(env('ICONS_DIR', path.join(serverRoot, 'public/icons'))),
   defaultPhoto: env('DEFAULT_PRODUCT_PHOTO', '/icons/default.svg'),
