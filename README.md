@@ -4,6 +4,8 @@
 
 ![Приходы](docs/screenshots/order-details.png)
 
+**Демо:** https://dzencode-inventory.vercel.app (фронт на Vercel, API + Socket.io + MySQL на Railway)
+
 **Демо-доступ:** `admin@inventory.local` / `Admin123!` (на странице входа есть кнопка «Подставить»).
 
 ## Содержание
