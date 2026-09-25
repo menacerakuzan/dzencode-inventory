@@ -26,6 +26,7 @@
     "home": "Home",
     "search": "Search",
     "searchLabel": "Search by title or serial number",
+    "tabs": "Tabs",
     "sessions": "{count, plural, one {# active tab} other {# active tabs}} of the app",
     "offline": "No connection to the server",
     "language": "Interface language"
