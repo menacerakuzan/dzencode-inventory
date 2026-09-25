@@ -18,6 +18,7 @@
 - [Тесты и проверки](#тесты-и-проверки)
 - [База данных и MySQL Workbench](#база-данных-и-mysql-workbench)
 - [REST API и WebSocket](#rest-api-и-websocket)
+- [Демо-стенд (Vercel + Railway)](#демо-стенд-vercel--railway)
 - [Деплой на VDS](#деплой-на-vds)
 - [Git-ветвление](#git-ветвление)
 
@@ -78,7 +79,8 @@ docker compose up -d --build
 
 **Адаптивность.** Вёрстка работает от 360px до широких экранов:
 - на телефоне сайдбар становится горизонтальным меню;
-- строки продуктов превращаются в карточки;
+- на ноутбуках таблица продуктов при нехватке ширины прокручивается горизонтально, как на макете;
+- на планшетах и телефонах строки продуктов превращаются в карточки;
 - открытый приход показывается над списком.
 
 <details>
@@ -289,6 +291,20 @@ erDiagram
 Ошибки валидации приходят как `400 { message, errors: [{ path, message }] }`.
 
 **Socket.io:** каждая открытая вкладка держит одно соединение. При подключении и отключении сервер рассылает всем событие `sessions:count` с числом активных вкладок.
+
+## Демо-стенд (Vercel + Railway)
+
+Демо https://dzencode-inventory.vercel.app развёрнуто из этого же репозитория, без Docker Compose:
+
+| Часть | Где | Как |
+|---|---|---|
+| Next.js (`client/`) | Vercel | `API_INTERNAL_URL` и `NEXT_PUBLIC_WS_URL` указывают на API на Railway |
+| API + Socket.io (`server/`) | Railway | собирается из `server/Dockerfile`, для загруженных фото подключён volume `/app/uploads` |
+| MySQL 8 | Railway | схема и демо-данные из `db/schema.sql` и `db/seed.sql` |
+
+Браузер обращается только к домену Vercel: Next.js проксирует `/api`, `/icons` и `/uploads` на Railway (rewrites в `client/next.config.ts`), поэтому httpOnly-cookie с JWT остаётся first-party. Socket.io подключается к Railway напрямую, CORS разрешён только для домена Vercel.
+
+Vercel не держит постоянные WebSocket-соединения, поэтому API и счётчик вкладок работают на Railway.
 
 ## Деплой на VDS
 
