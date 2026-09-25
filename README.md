@@ -26,7 +26,7 @@
 Нужны только **Docker** и **Docker Compose v2**.
 
 ```bash
-git clone <url-репозитория> dzencode-inventory
+git clone https://github.com/menacerakuzan/dzencode-inventory.git dzencode-inventory
 cd dzencode-inventory
 cp .env.example .env        # затем впишите свой JWT_SECRET (например, `openssl rand -hex 32`)
 docker compose up -d --build
@@ -299,7 +299,7 @@ erDiagram
 curl -fsSL https://get.docker.com | sh
 
 # 2. Проект
-git clone <url-репозитория> /opt/inventory && cd /opt/inventory
+git clone https://github.com/menacerakuzan/dzencode-inventory.git /opt/inventory && cd /opt/inventory
 cp .env.example .env
 #   JWT_SECRET=<openssl rand -hex 32>
 #   APP_PORT=80
