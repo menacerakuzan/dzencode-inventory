@@ -45,7 +45,7 @@
   &__main {
     display: grid;
     flex: 1;
-    grid-template-columns: minmax(0, 1fr) 44px minmax(90px, 130px) minmax(120px, 170px) minmax(130px, 190px);
+    grid-template-columns: minmax(0, 1fr) 44px 84px 128px 140px;
     align-items: center;
     gap: 16px;
     min-width: 0;
