@@ -12,6 +12,13 @@
     margin: 0;
     padding: 0;
     list-style: none;
+
+    // As on the mockup: on laptop screens the table scrolls horizontally instead of squeezing the columns.
+    @media (min-width: $bp-lg) {
+      margin: -4px;
+      padding: 4px 4px 12px;
+      overflow-x: auto;
+    }
   }
 }
 
@@ -50,9 +57,10 @@
 .product-row {
   display: grid;
   grid-template-columns:
-    8px 48px minmax(0, 2.2fr) 96px 196px 128px minmax(0, 1.3fr)
-    minmax(0, 1.5fr) 100px 68px;
+    8px 48px minmax(150px, 2.2fr) 96px 196px 128px minmax(100px, 1.3fr)
+    minmax(120px, 1.5fr) 100px 68px;
   align-items: center;
+  min-width: 1190px;
   gap: 16px;
   min-height: 64px;
   padding: 10px 12px 10px 22px;
@@ -134,9 +142,10 @@
   // The product date is optional in the spec: hidden on medium screens to keep the row readable.
   @media (max-width: 1599.98px) {
     grid-template-columns:
-      8px 48px minmax(0, 2fr) 96px 196px 128px minmax(0, 1.2fr)
-      minmax(0, 1.4fr) 68px;
+      8px 48px minmax(150px, 2fr) 96px 196px 128px minmax(100px, 1.2fr)
+      minmax(120px, 1.4fr) 68px;
     gap: 14px;
+    min-width: 1060px;
 
     &__date {
       display: none;
@@ -147,6 +156,7 @@
   @include down($bp-lg) {
     grid-template-columns: 8px 48px minmax(0, 1fr) 36px;
     align-items: start;
+    min-width: 0;
     gap: 6px 14px;
     padding: 14px 10px 14px 14px;
 
