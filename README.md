@@ -107,7 +107,7 @@ docker compose up -d --build
 | REST (Axios/Fetch) | **Axios** на клиенте (`lib/api.ts`), **fetch** при SSR (`lib/serverApi.ts`) |
 | Валидация форм | **react-hook-form + zod** на клиенте, **zod** на сервере (ошибки полей возвращаются в ответе 400) |
 | Docker | `docker-compose.yml`: MySQL, API, Next.js, nginx |
-| Схема БД | `db/schema.sql`, см. [раздел про БД](#база-данных-и-mysql-workbench) |
+| Схема БД | модель MySQL Workbench `db/inventory.mwb` + DDL `db/schema.sql`, см. [раздел про БД](#база-данных-и-mysql-workbench) |
 
 ### Уровень Junior+
 
@@ -154,7 +154,7 @@ docker compose up -d --build
 │   ├── src/                app, config, http (routes, auth, schemas, errors), db, realtime
 │   ├── public/icons/       встроенные иконки продуктов (добавьте файл — появится в форме)
 │   └── test/               тесты API и WebSocket
-├── db/                     schema.sql, seed.sql
+├── db/                     inventory.mwb, schema.sql, seed.sql
 ├── nginx/nginx.conf
 ├── docs/screenshots/
 └── docker-compose.yml
@@ -204,7 +204,7 @@ npm run check        # всё вместе
 
 ## База данных и MySQL Workbench
 
-Схема: `db/schema.sql` (DDL MySQL 8). Демо-данные: `db/seed.sql`.
+Модель MySQL Workbench: `db/inventory.mwb` (EER-диаграмма). Та же схема в виде DDL MySQL 8: `db/schema.sql`. Демо-данные: `db/seed.sql`.
 
 ```mermaid
 erDiagram
@@ -258,7 +258,7 @@ erDiagram
 Цены вынесены в отдельную таблицу `product_prices`, как массив `price` в `app.js`. Так поддерживается любое число валют, а одна из них помечается как основная (`is_default`).
 
 **Как открыть в MySQL Workbench:**
-1. ER-диаграмма: `File → Import → Reverse Engineer MySQL Create Script…` → выбрать `db/schema.sql`. Workbench построит модель, её можно сохранить как `.mwb`.
+1. ER-диаграмма: `File → Open Model…` → `db/inventory.mwb`.
 2. Живая база из Docker: новое подключение `127.0.0.1:3307`, пользователь `inventory` / `inventory`, схема `inventory`.
 
 ## REST API и WebSocket
